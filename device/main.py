@@ -1,144 +1,96 @@
-import ssl
+from machine import Pin
 import time
-
-import machine
-import network
 import ntptime
-import ubinascii
-from machine import Timer
-from simple import MQTTClient
+import json
+
+import wifi
+import mqtt
 from config import config
 
-#MQTT_CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+MQTT_DOOR_TOPIC = "fridge/door-event"
+MQTT_TEMPERATURE_TOPIC = "fridge/temperature"
 
-# MQTT topic constants
-MQTT_LED_TOPIC = "picow/led"
-MQTT_BUTTON_TOPIC = "picow/button"
+wlan = wifi.connect_wlan()
+# TODO: wlan re-connect logic
 
-
-# function that reads PEM file and return byte array of data
-def read_pem(file):
-    with open(file, "r") as input:
-        text = input.read().strip()
-        split_text = text.split("\n")
-        base64_text = "".join(split_text[1:-1])
-
-        return ubinascii.a2b_base64(base64_text)
-
-
-# callback function to handle received MQTT messages
-def on_mqtt_msg(topic, msg):
-    # convert topic and message from bytes to string
-    topic_str = topic.decode()
-    msg_str = msg.decode()
-
-    print(f"RX: {topic_str}\n\t{msg_str}")
-
-    # process message
-    if topic_str is MQTT_LED_TOPIC:
-        if msg_str is "on":
-            led.on()
-        elif msg_str is "off":
-            led.off()
-        elif msg_str is "toggle":
-            led.toggle()
-
-
-# callback function to handle changes in button state
-# publishes "released" or "pressed" message
-def publish_mqtt_button_msg(t):
-    topic_str = MQTT_BUTTON_TOPIC
-    msg_str = "released" if button.value() else "pressed"
-
-    print(f"TX: {topic_str}\n\t{msg_str}")
-    mqtt_client.publish(topic_str, msg_str)
-
-def publish_mqtt_hello_world():
-    topic_str = MQTT_BUTTON_TOPIC
-    msg_str = "hello world"
-
-    print(f"TX: {topic_str}\n\t{msg_str}")
-    mqtt_client.publish(topic_str, msg_str)
-
-
-# callback function to periodically send MQTT ping messages
-# to the MQTT broker
-def send_mqtt_ping(t):
-    print("TX: ping")
-    mqtt_client.ping()
-
-
-# read the data in the private key, public certificate, and
-# root CA files
-key = read_pem(MQTT_CLIENT_KEY)
-cert = read_pem(MQTT_CLIENT_CERT)
-ca = read_pem(MQTT_BROKER_CA)
-
-# create pin objects for on-board LED and external button
-#led = Pin("LED", Pin.OUT)
-#button = Pin(3, Pin.IN, Pin.PULL_UP)
-
-# initialize the Wi-Fi interface
-wlan = network.WLAN(network.STA_IF)
-
-# create MQTT client that use TLS/SSL for a secure connection
-mqtt_client = MQTTClient(
-    MQTT_CLIENT_ID,
-    MQTT_BROKER,
-    keepalive=60,
-    ssl=True,
-    ssl_params={
-        "key": key,
-        "cert": cert,
-        "server_hostname": MQTT_BROKER,
-        "cert_reqs": ssl.CERT_REQUIRED,
-        "cadata": ca,
-    },
-)
-
-print(f"Connecting to Wi-Fi SSID: {WIFI_SSID}")
-
-# activate and connect to the Wi-Fi network:
-wlan.active(True)
-wlan.connect(WIFI_SSID, WIFI_PASSWORD)
-
-while not wlan.isconnected():
-    time.sleep(0.5)
-
-print(f"Connected to Wi-Fi SSID: {WIFI_SSID}")
-
-# update the current time on the board using NTP
+# Update the current time on the board using NTP.
+# Needed for SSL connections and timestamp accuracy.
 ntptime.settime()
 
-print(f"Connecting to MQTT broker: {MQTT_BROKER}")
+mqtt_client = mqtt.create_client()
 
-# register callback to for MQTT messages, connect to broker and
-# subscribe to LED topic
-mqtt_client.set_callback(on_mqtt_msg)
-mqtt_client.connect()
-mqtt_client.subscribe(MQTT_LED_TOPIC)
 
-print(f"Connected to MQTT broker: {MQTT_BROKER}")
 
-# register callback function to handle changes in button state
-#button.irq(publish_mqtt_button_msg, Pin.IRQ_FALLING | Pin.IRQ_RISING)
 
-publish_mqtt_hello_world()
+door = Pin(14, Pin.IN, Pin.PULL_UP)
 
-# turn on-board LED on
-#led.on()
+def door_update(event_handler):
+    prev_door_status = door.value()
 
-# create timer for periodic MQTT ping messages for keep-alive
-mqtt_ping_timer = Timer(
-    mode=Timer.PERIODIC, period=mqtt_client.keepalive * 1000, callback=send_mqtt_ping
-)
+    while True:
+        door_status = door.value()
+        if door_status != prev_door_status:
+            if door_status:
+                event_handler("open")
+            else:
+                event_handler("close")
+            prev_door_status = door_status
+        time.sleep(0.1)
 
-# main loop, continuously check for incoming MQTT messages
-while True:
-    mqtt_client.check_msg()
+def get_now():
+    # For now, just returning the ISO-8601 string in UTC time, since
+    # we store UTC time on the server. Our FE can convert to local timezone
+    # since we're only dealing with a single device. Ideally, we can register
+    # the device timezone, store server data in UTC, and have the FE display logic
+    # convert to the device's timezone.
+    local_time = time.localtime()
+    iso_time = "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}+00:00".format(
+        local_time[0], local_time[1], local_time[2], 
+        local_time[3], local_time[4], local_time[5])
+    return iso_time
+
+    """
+    utcOffsetSeconds = config["TIMEZONE_UTC_OFFSET_SECONDS"]
+
+    # Split out into hour/minute components.
+    # 8:30 (8 hours 30 minute UTC offset) -> 30600 utcOffsetSeconds
+    # utcOffsetHours == 8
+    # utcOffsetMinutes == 30
+    utcOffsetHours = int(utcOffsetSeconds / 60 / 60)
+    utcOffsetMinutes = (utcOffsetSeconds - (utcOffsetHours * 60 * 60)) // 60
     
+    local_time = time.localtime(time.time() + config["TIMEZONE_UTC_OFFSET_SECONDS"])
     
+    # ISO 8601 format, e.g. 2023-11-15T17:19:13.233-08:00
+    iso_time = "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}{}{:02d}:{:02d}".format(
+        local_time[0], local_time[1], local_time[2], 
+        local_time[3], local_time[4], local_time[5],
+        "+" if utcOffsetSeconds >= 0 else "-", abs(utcOffsetHours), abs(utcOffsetMinutes))
+    return iso_time
+    """
+
+
+def build_msg_door_event(event_type):
+    return json.dumps({
+        "timestamp": get_now(),
+        "eventType": event_type,
+    })
+
+def on_door_event(event_type):
+    print("## door event: ", event_type)
     
+    evt = build_msg_door_event(event_type)
+    print("### payload: ", evt)
+    #mqtt.publish_event(mqtt_client, MQTT_DOOR_TOPIC, evt)
+    
+
+
+
+door_update(on_door_event)
+
+
+
+"""
     import machine, onewire, ds18x20
 from time import sleep
  
@@ -162,28 +114,6 @@ while True:
     print(ds_sensor.read_temp(rom))
  
   sleep(3)
-  
-"""
-from machine import Pin
-import time
-import socket
-import network
-
-door = Pin(14, Pin.IN, Pin.PULL_UP)
-#button = Pin(13, Pin.IN, Pin.PULL_UP)    #Create button object from Pin13 , Set GP13 to input
-
-prev_door_status = door.value()
-
-while True:
-    door_status = door.value()
-#    print("raw status: " + str(door_status))
-    if door_status != prev_door_status:
-        if door_status:
-            print("Open")
-        else:
-            print("Closed")
-        prev_door_status = door_status
-    time.sleep(0.1)
 """
 
 

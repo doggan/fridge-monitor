@@ -1,7 +1,9 @@
 from machine import Pin
+import machine
 import time
 import ntptime
 import json
+import ubinascii
 
 import wifi
 import mqtt
@@ -9,6 +11,10 @@ from config import config
 
 MQTT_DOOR_TOPIC = "fridge/door-event"
 MQTT_TEMPERATURE_TOPIC = "fridge/temperature"
+
+DEVICE_ID = ubinascii.hexlify(machine.unique_id())
+
+door = Pin(14, Pin.IN, Pin.PULL_UP)
 
 wlan = wifi.connect_wlan()
 # TODO: wlan re-connect logic
@@ -18,11 +24,6 @@ wlan = wifi.connect_wlan()
 ntptime.settime()
 
 mqtt_client = mqtt.create_client()
-
-
-
-
-door = Pin(14, Pin.IN, Pin.PULL_UP)
 
 def door_update(event_handler):
     prev_door_status = door.value()
@@ -43,7 +44,7 @@ def get_now():
     # since we're only dealing with a single device. Ideally, we can register
     # the device timezone, store server data in UTC, and have the FE display logic
     # convert to the device's timezone.
-    local_time = time.localtime()
+    local_time = time.gmtime()
     iso_time = "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}+00:00".format(
         local_time[0], local_time[1], local_time[2], 
         local_time[3], local_time[4], local_time[5])
@@ -72,19 +73,16 @@ def get_now():
 
 def build_msg_door_event(event_type):
     return json.dumps({
+        "deviceId": DEVICE_ID,
         "timestamp": get_now(),
         "eventType": event_type,
     })
 
 def on_door_event(event_type):
-    print("## door event: ", event_type)
-    
     evt = build_msg_door_event(event_type)
-    print("### payload: ", evt)
-    #mqtt.publish_event(mqtt_client, MQTT_DOOR_TOPIC, evt)
+    print("# on_door_event: ", evt)
+    mqtt.publish_event(mqtt_client, MQTT_DOOR_TOPIC, evt)
     
-
-
 
 door_update(on_door_event)
 

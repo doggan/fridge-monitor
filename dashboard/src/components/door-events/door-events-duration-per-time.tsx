@@ -1,6 +1,7 @@
 import {DonutChart, Legend, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
-import {OpenCloseEvent} from "@/components/door-events/door-events-section";
+import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
+import {OpenCloseEvent} from "@/app/page";
 
 interface DoorEventsDurationPerTimeProps {
     openCloseEvents: OpenCloseEvent[];
@@ -35,18 +36,11 @@ const buildData = (openCloseEvents: OpenCloseEvent[]) : ChartData[]  => {
             totalTime += e.durationInMs;
         });
 
-    const formatTimeRange = (str: string, time: number) => {
-        return `${str} - %${Math.trunc(time / totalTime * 100)}`
-    }
-    const formatTime = (time: number) => {
-        return Math.trunc(time / 1000 / 60);
-    }
-
     return [
-        { name: formatTimeRange("Morning (5am - 10am)", valuesByTime[0]), time: formatTime(valuesByTime[0]) },
-        { name: formatTimeRange("Afternoon (10am - 4pm)", valuesByTime[1]), time: formatTime(valuesByTime[1]) },
-        { name: formatTimeRange("Evening (4pm - 9pm)", valuesByTime[2]), time: formatTime(valuesByTime[2]) },
-        { name: formatTimeRange("Night (9pm - 5am)", valuesByTime[3]), time: formatTime(valuesByTime[3]) },
+        { name: formatDayPercentage("Morning (5am - 10am)", valuesByTime[0], totalTime), time: formatMsToMinutes(valuesByTime[0]) },
+        { name: formatDayPercentage("Afternoon (10am - 4pm)", valuesByTime[1], totalTime), time: formatMsToMinutes(valuesByTime[1]) },
+        { name: formatDayPercentage("Evening (4pm - 9pm)", valuesByTime[2], totalTime), time: formatMsToMinutes(valuesByTime[2]) },
+        { name: formatDayPercentage("Night (9pm - 5am)", valuesByTime[3], totalTime), time: formatMsToMinutes(valuesByTime[3]) },
     ];
 }
 

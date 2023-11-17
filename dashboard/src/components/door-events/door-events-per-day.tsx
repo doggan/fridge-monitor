@@ -2,6 +2,7 @@ import {DoorEvent} from "@/utils/models";
 import {BarList, Bold, Flex, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {Spinner} from "@/components/spinner";
+import {formatDayPercentage} from "@/components/door-events/util";
 
 interface DoorEventsPerDayProps {
     isLoading: boolean;
@@ -27,18 +28,14 @@ const buildData = (events: DoorEvent[]) : ChartData[]  => {
             totalOpenCount += 1;
         });
 
-    const formatDay = (day: string, count: number) => {
-        return `${day} - %${Math.trunc(count / totalOpenCount * 100)}`
-    }
-
     const data = [
-        { name: formatDay("Sunday", countsByDay[0]), value: countsByDay[0] },
-        { name: formatDay("Monday", countsByDay[1]), value: countsByDay[1] },
-        { name: formatDay("Tuesday", countsByDay[2]), value: countsByDay[2] },
-        { name: formatDay("Wednesday", countsByDay[3]), value: countsByDay[3] },
-        { name: formatDay("Thursday", countsByDay[4]), value: countsByDay[4] },
-        { name: formatDay("Friday", countsByDay[5]), value: countsByDay[5] },
-        { name: formatDay("Saturday", countsByDay[6]), value: countsByDay[6] },
+        { name: formatDayPercentage("Sunday", countsByDay[0], totalOpenCount), value: countsByDay[0] },
+        { name: formatDayPercentage("Monday", countsByDay[1], totalOpenCount), value: countsByDay[1] },
+        { name: formatDayPercentage("Tuesday", countsByDay[2], totalOpenCount), value: countsByDay[2] },
+        { name: formatDayPercentage("Wednesday", countsByDay[3], totalOpenCount), value: countsByDay[3] },
+        { name: formatDayPercentage("Thursday", countsByDay[4], totalOpenCount), value: countsByDay[4] },
+        { name: formatDayPercentage("Friday", countsByDay[5], totalOpenCount), value: countsByDay[5] },
+        { name: formatDayPercentage("Saturday", countsByDay[6], totalOpenCount), value: countsByDay[6] },
     ];
 
     // Sort by frequency.

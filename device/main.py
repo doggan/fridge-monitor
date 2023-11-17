@@ -24,6 +24,7 @@ wlan = wifi.connect_wlan()
 ntptime.settime()
 
 mqtt_client = mqtt.create_client()
+mqtt.start_keepalive_ping(mqtt_client)
 
 def door_update(event_handler):
     prev_door_status = door.value()

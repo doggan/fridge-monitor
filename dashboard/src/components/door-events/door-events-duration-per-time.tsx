@@ -53,8 +53,7 @@ export function DoorEventsDurationPerTime({ openCloseEvents } : DoorEventsDurati
 
     return (
         <>
-            <Title>Open Duration Per Time of Day</Title>
-            <Text>Door open time durations per time of day.</Text>
+            <Title>Door Open Duration Per Time of Day</Title>
 
             <Legend
                 className="mt-6"

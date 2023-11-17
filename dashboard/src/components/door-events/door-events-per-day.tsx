@@ -57,8 +57,7 @@ export function DoorEventsPerDay({ isLoading, events } : DoorEventsPerDayProps) 
 
     return (
         <>
-            <Title>Open Counts Per Day</Title>
-            <Text>Door open counts per day of week.</Text>
+            <Title>Door Opens Per Day of Week</Title>
             <Flex className="mt-4">
                 <Text>
                     <Bold>Day</Bold>

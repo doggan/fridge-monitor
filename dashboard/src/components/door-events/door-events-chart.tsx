@@ -1,4 +1,4 @@
-import {BarChart, Card, Subtitle, Title} from "@tremor/react";
+import {BarChart, Subtitle, Title} from "@tremor/react";
 import {DoorEvent} from "@/utils/models";
 import {useMemo} from "react";
 import {getDateWithZeroPadding} from "@/utils/time";
@@ -30,7 +30,14 @@ const buildData = (events: DoorEvent[]) : ChartData[]  => {
 
     const countsArray = [];
     for (let key in countsByDate) {
-        countsArray.push({ name: key, "Opened count": countsByDate[key] })
+        countsArray.push({
+            name: key
+                // Remove year: 2023-10-11 => 10-11
+                .substring(key.indexOf("-") + 1)
+                // Change month/day formatting: 10-11 => 10/11
+                .replace("-", "/"),
+            "Opened count": countsByDate[key]
+        })
     }
 
     // Sort by date.
@@ -56,7 +63,7 @@ export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
 
     return (
         <>
-            <Title>Open Counts (30 days)</Title>
+            <Title>Door Open Counts (30 days)</Title>
             <Subtitle>
                 # of times the refrigerator door has been opened over the last 30 days.
             </Subtitle>

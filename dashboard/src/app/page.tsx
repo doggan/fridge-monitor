@@ -1,6 +1,6 @@
 'use client';
 
-import {Card, Grid, Text, Title} from "@tremor/react";
+import {Card, Col, Grid, Metric, Text, Title} from "@tremor/react";
 import useSWR from "swr";
 import {GetDoorEventsResponse} from "@/utils/requests";
 import {fetcher} from "@/utils/fetcher";
@@ -11,6 +11,7 @@ import {useMemo} from "react";
 import {DoorEvent, DoorEventType} from "@/utils/models";
 import {DoorEventsDurationPerTime} from "@/components/door-events/door-events-duration-per-time";
 import {CurrentTemp} from "@/components/temperature/current-temp";
+import {Footer} from "@/components/footer";
 
 export type OpenCloseEvent = {
     startTime: Date;
@@ -108,35 +109,39 @@ export default function Home() {
 
     return (
         <main className={"p-12"}>
-            <Title>Refrigerator Door Open / Close Events</Title>
-            <Text>Data about the opening and closing of the fridge door.</Text>
+            <Metric>Fridge Stats ❄️</Metric>
+            <Text>Dashboard for viewing refrigerator stats and metrics.</Text>
 
-            {/*<Card className="mt-6">*/}
-            {/*    <div className="h-96" />*/}
-            {/*</Card>*/}
-
-            {/*/!* KPI section *!/*/}
-
-            <Grid numItemsMd={2} numItemsLg={3} className="gap-6 mt-6">
+            <Grid numItemsMd={2} className="gap-6 mt-6">
                 <Card>
-                    {/* Placeholder to set height */}
-                    {/*<div className="h-28" />*/}
                     <CurrentTemp />
                 </Card>
                 <Card>
-                    {/* Placeholder to set height */}
-                    <div className="h-28" />
-                </Card>
-                <Card>
-                    {/* Placeholder to set height */}
-                    <div className="h-28" />
+                    <Text>Door Open Status: Open/Closed</Text>
+                    <Text>Door Last Opened: 20 minutes ago (11/16 @ 5:02pm)</Text>
                 </Card>
             </Grid>
 
-
-            <Card className={"mt-6"}>
-                <DoorEventsChart isLoading={isLoadingEvents} events={eventsStats.events}/>
-            </Card>
+            <Grid numItemsMd={3} className="mt-6 gap-6">
+                <Col numColSpan={1} numColSpanLg={2}>
+                    <Card>
+                        <DoorEventsChart isLoading={isLoadingEvents} events={eventsStats.events}/>
+                    </Card>
+                </Col>
+                <Card>
+                    <Title>Door Open Count Stats</Title>
+                    <Text>Door open count avg per day this week: XXX times</Text>
+                    <Text>Time opened avg per day this week: XXX minutes</Text>
+                    <Text>Door open count this week: XXX times (+20% from previous week)</Text>
+                    <Text>Time opened this week: XXX minutes (+20% from previous week)</Text>
+                    <Text>Top 5 Longest Open Durations:</Text>
+                    <Text> - XXX minutes (11/30)</Text>
+                    <Text> - XXX minutes (11/30)</Text>
+                    <Text> - XXX minutes (11/30)</Text>
+                    <Text> - XXX minutes (11/30)</Text>
+                    <Text> - XXX minutes (11/30)</Text>
+                </Card>
+            </Grid>
             <Grid numItemsMd={3} className="mt-6 gap-6">
                 <Card>
                     {/* Placeholder to set height */}
@@ -154,6 +159,8 @@ export default function Home() {
                     <DoorEventsDurationPerTime openCloseEvents={eventsStats.openCloseEvents} />
                 </Card>
             </Grid>
+
+            <Footer/>
         </main>
     );
 }

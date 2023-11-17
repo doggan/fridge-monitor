@@ -51,8 +51,7 @@ export function DoorEventsDurationPerDay({ openCloseEvents } : DoorEventsDuratio
 
     return (
         <>
-            <Title>Open Duration Per Day</Title>
-            <Text>Door open time durations per day of week.</Text>
+            <Title>Door Open Duration Per Day</Title>
             <Flex className="mt-4">
                 <Text>
                     <Bold>Day</Bold>

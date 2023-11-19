@@ -8,6 +8,10 @@ import ubinascii
 import wifi
 import mqtt
 from config import config
+import logger
+
+# For development only.
+logger.enable_log_file()
 
 MQTT_DOOR_TOPIC = "fridge/door-event"
 MQTT_TEMPERATURE_TOPIC = "fridge/temperature"
@@ -81,7 +85,7 @@ def build_msg_door_event(event_type):
 
 def on_door_event(event_type):
     evt = build_msg_door_event(event_type)
-    print("# on_door_event: ", evt)
+    logger.info("# on_door_event: %s", evt)
     mqtt.publish_event(mqtt_client, MQTT_DOOR_TOPIC, evt)
     
 

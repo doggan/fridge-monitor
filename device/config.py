@@ -5,10 +5,13 @@ config = {
     # Network password.
     "WLAN_PASSWORD": 'XXXXX',
     
-    "MQTT_CLIENT_KEY": "XXXXX-private.pem.key",
-    "MQTT_CLIENT_CERT": "XXXXX-certificate.pem.crt",
+    # Converting to DER:
+    # openssl x509 -in certificate.pem.crt -out certificate.der -outform DER
+    # openssl rsa -in private.pem.key -out private.key.der -outform DER
+    "MQTT_CLIENT_KEY": "private.pem.der",
+    "MQTT_CLIENT_CERT": "certificate.der",
     "MQTT_BROKER": "XXXXX.amazonaws.com",
-    "MQTT_BROKER_CA": "XXXXX.pem",
+    "MQTT_BROKER_CA": "AmazonRootCA1.pem",
     
     #"TIMEZONE": "America/Los_Angeles",
     # TODO: changes between -7 and -8 depending on daylight savings. need a better automated way to handle this,

@@ -19,6 +19,10 @@ def publish_event(client, topic_str, msg_str):
 def create_client():
     logger.info(f"Connecting to MQTT broker: {MQTT_BROKER}")
     
+
+    def read_pem_binary(file):
+        with open(file, "rb") as f:
+            return f.read()
     # function that reads PEM file and return byte array of data
     def read_pem(file):
         with open(file, "r") as input:
@@ -28,8 +32,8 @@ def create_client():
 
             return ubinascii.a2b_base64(base64_text)
     
-    key = read_pem(MQTT_CLIENT_KEY)
-    cert = read_pem(MQTT_CLIENT_CERT)
+    key = read_pem_binary(MQTT_CLIENT_KEY)
+    cert = read_pem_binary(MQTT_CLIENT_CERT)
     ca = read_pem(MQTT_BROKER_CA)
     
     # create MQTT client that use TLS/SSL for a secure connection

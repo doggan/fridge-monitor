@@ -2,7 +2,8 @@ import ssl
 import machine
 import ubinascii
 from machine import Timer
-from simple import MQTTClient
+#from simple import MQTTClient
+from robust import MQTTClient
 from config import config
 import logger
 
@@ -23,6 +24,7 @@ def create_client():
     def read_pem_binary(file):
         with open(file, "rb") as f:
             return f.read()
+    
     # function that reads PEM file and return byte array of data
     def read_pem(file):
         with open(file, "r") as input:
@@ -50,6 +52,7 @@ def create_client():
             "cadata": ca,
         },
     )
+    mqtt_client.DEBUG = True
     
     mqtt_client.connect()
     

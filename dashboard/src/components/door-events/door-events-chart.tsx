@@ -56,9 +56,7 @@ export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
 
     if (isLoading) {
         return (
-            <Card>
-                <Spinner />
-            </Card>
+            <Spinner />
         );
     }
 

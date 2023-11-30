@@ -1,5 +1,5 @@
 import {useMemo} from "react";
-import {Card, LineChart, Subtitle, Title} from "@tremor/react";
+import {LineChart, Subtitle, Title} from "@tremor/react";
 import {Spinner} from "@/components/spinner";
 import {RawTempEvent} from "@/utils/models";
 import {cToF, round} from "@/utils/numbers";
@@ -47,9 +47,7 @@ export function TemperatureChart({ isLoading, events } : TemperatureChartProps) 
 
     if (isLoading) {
         return (
-            <Card>
-                <Spinner />
-            </Card>
+            <Spinner />
         );
     }
 

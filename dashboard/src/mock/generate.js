@@ -11,11 +11,13 @@ module.exports = () => {
                 }
             }),
         },
-        "temperatures": _.times(100, (n) => {
-            return {
-                timestamp: faker.date.recent({ days: 30 }),
-                value: faker.number.float({ min: -20, max: 70, precision: 0.001 }),
-            }
-        }),
+        "temperatures": {
+            "events": _.times(100, (n) => {
+                return {
+                    timestamp: faker.date.recent({days: 30}),
+                    value: faker.number.float({min: -20, max: 70, precision: 0.001}),
+                }
+            }),
+        }
     }
 }

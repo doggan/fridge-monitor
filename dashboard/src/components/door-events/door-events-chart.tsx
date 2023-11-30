@@ -1,11 +1,11 @@
 import {BarChart, Subtitle, Title} from "@tremor/react";
-import {DoorEvent} from "@/utils/models";
+import {RawDoorEvent} from "@/utils/models";
 import {useMemo} from "react";
 import {getDateWithZeroPadding} from "@/utils/time";
 
 interface DoorEventsChartProps {
     isLoading: boolean,
-    events: DoorEvent[];
+    events: RawDoorEvent[];
 }
 
 interface ChartData {
@@ -13,7 +13,7 @@ interface ChartData {
     "Opened count": number;
 }
 
-const buildData = (events: DoorEvent[]) : ChartData[]  => {
+const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
     const countsByDate : {[key: string] : number} = {}
 
     // Filter and count.

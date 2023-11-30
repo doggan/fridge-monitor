@@ -1,6 +1,11 @@
-import {DoorEvent} from "@/utils/models";
+import {RawDoorEvent, RawTempEvent} from "@/utils/models";
 
 export type GetDoorEventsResponse = {
-    events: DoorEvent[];
+    events: RawDoorEvent[];
+    // totalResultsCount: number;
+};
+
+export type GetTemperatureEventsResponse = {
+    events: RawTempEvent[];
     // totalResultsCount: number;
 };

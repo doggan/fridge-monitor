@@ -1,4 +1,4 @@
-import {DoorEvent} from "@/utils/models";
+import {RawDoorEvent} from "@/utils/models";
 import {BarList, Bold, Flex, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {Spinner} from "@/components/spinner";
@@ -6,7 +6,7 @@ import {formatDayPercentage} from "@/components/door-events/util";
 
 interface DoorEventsPerDayProps {
     isLoading: boolean;
-    events: DoorEvent[];
+    events: RawDoorEvent[];
 }
 
 interface ChartData {
@@ -14,7 +14,7 @@ interface ChartData {
     value: number;
 }
 
-const buildData = (events: DoorEvent[]) : ChartData[]  => {
+const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
     const countsByDay = [0, 0, 0, 0, 0, 0, 0];
 
     let totalOpenCount = 0;

@@ -17,6 +17,7 @@ bun dev
 TODO:
 - update instructions (npm only)
 - add instructions for running mock db: npm run mock-server
+- requires NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID=XXXX to be defined in .env.local
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

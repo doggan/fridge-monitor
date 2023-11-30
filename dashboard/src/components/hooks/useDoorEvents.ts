@@ -2,7 +2,7 @@ import useSWR from "swr";
 import {GetDoorEventsResponse} from "@/utils/requests";
 import {fetcher} from "@/utils/fetcher";
 import {useMemo} from "react";
-import {RawDoorEvent, DoorEventType, DoorEventsResult, DoorOpenEvent} from "@/utils/models";
+import {DoorEventsResult, DoorEventType, DoorOpenEvent, RawDoorEvent} from "@/utils/models";
 
 /**
  * Build open events from the raw event data to match open/close pairs.
@@ -54,13 +54,13 @@ const buildOpenEvents = (events: RawDoorEvent[]) => {
     return results;
 }
 
-export const useDoorEvents = (deviceId : string, startDate : string) => {
+export const useDoorEvents = (deviceId: string, startDate: string, endDate: string) => {
     const { data, isLoading } =
         useSWR<GetDoorEventsResponse>(
             `/door-events?${new URLSearchParams({
                 deviceId,
                 startDate,
-                // endDate,
+                endDate,
             })}`,
             fetcher,
         );

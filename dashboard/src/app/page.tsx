@@ -12,15 +12,22 @@ import {useTemperatureEvents} from "@/components/hooks/useTemperatureEvents";
 import {DoorStatus} from "@/components/door-events/door-status";
 import {TemperatureChart} from "@/components/temperature/temperature-chart";
 import {DoorLastOpened} from "@/components/door-events/door-last-opened";
+import dayjs from "dayjs";
 
 export default function Home() {
-    // TODO: listing devices
-    const deviceId = "123";
-    const startDate = "2023-10-";
-    // const endDate = undefined;
+    // TODO: support querying of a list of devices (e.g. for multiple refrigerators)
+    // and allow selection via dropdown instead of relying on a constant.
+    const deviceId = process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID || "unknown";
 
-    const { isLoading: isLoadingDoorEvents, result: doorResult } = useDoorEvents(deviceId, startDate)
-    const { isLoading: isLoadingTempEvents, result: temperatureResult } = useTemperatureEvents(deviceId, startDate);
+    const endDate = dayjs();
+    const startDate = endDate.subtract(30, 'day')
+    const startDateStr = startDate.format("YYYY-MM-DD");
+    const endDateStr = endDate.format("YYYY-MM-DD");
+
+    const { isLoading: isLoadingDoorEvents, result: doorResult } =
+        useDoorEvents(deviceId, startDateStr, endDateStr)
+    const { isLoading: isLoadingTempEvents, result: temperatureResult } =
+        useTemperatureEvents(deviceId, startDateStr, endDateStr);
 
     return (
         <main className={"p-12"}>

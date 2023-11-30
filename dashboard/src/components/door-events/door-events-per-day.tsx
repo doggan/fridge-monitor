@@ -51,22 +51,21 @@ export function DoorEventsPerDay({ isLoading, events } : DoorEventsPerDayProps) 
         return buildData(events);
     }, [events]);
 
-    if (isLoading) {
-        return <Spinner/>;
-    }
-
     return (
         <>
             <Title>Door Opens Per Day of Week</Title>
-            <Flex className="mt-4">
-                <Text>
-                    <Bold>Day</Bold>
-                </Text>
-                <Text>
-                    <Bold>Count</Bold>
-                </Text>
-            </Flex>
-            <BarList data={data} className="mt-2" />
+            {isLoading && <Spinner />}
+            {!isLoading && (<>
+                <Flex className="mt-4">
+                    <Text>
+                        <Bold>Day</Bold>
+                    </Text>
+                    <Text>
+                        <Bold>Count</Bold>
+                    </Text>
+                </Flex>
+                <BarList data={data} className="mt-2" />
+            </>)}
         </>
     )
 }

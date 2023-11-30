@@ -2,8 +2,10 @@ import {BarList, Bold, Flex, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
 import {DoorOpenEvent} from "@/utils/models";
+import {Spinner} from "@/components/spinner";
 
 interface DoorEventsDurationPerDayProps {
+    isLoading: boolean;
     openCloseEvents: DoorOpenEvent[];
 }
 
@@ -42,7 +44,7 @@ const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
     return data;
 }
 
-export function DoorEventsDurationPerDay({ openCloseEvents } : DoorEventsDurationPerDayProps) {
+export function DoorEventsDurationPerDay({ isLoading, openCloseEvents } : DoorEventsDurationPerDayProps) {
     const data = useMemo(() => {
         return buildData(openCloseEvents);
     }, [openCloseEvents]);
@@ -52,20 +54,23 @@ export function DoorEventsDurationPerDay({ openCloseEvents } : DoorEventsDuratio
     return (
         <>
             <Title>Door Open Duration Per Day</Title>
-            <Flex className="mt-4">
-                <Text>
-                    <Bold>Day</Bold>
-                </Text>
-                <Text>
-                    <Bold>Minutes</Bold>
-                </Text>
-            </Flex>
-            <BarList
-                showAnimation={true}
-                data={data}
-                valueFormatter={valueFormatter}
-                className="mt-2"
-            />
+            {isLoading && <Spinner />}
+            {!isLoading && (<>
+                <Flex className="mt-4">
+                    <Text>
+                        <Bold>Day</Bold>
+                    </Text>
+                    <Text>
+                        <Bold>Minutes</Bold>
+                    </Text>
+                </Flex>
+                <BarList
+                    showAnimation={true}
+                    data={data}
+                    valueFormatter={valueFormatter}
+                    className="mt-2"
+                />
+            </>)}
         </>
     )
 }

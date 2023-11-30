@@ -83,10 +83,10 @@ export default function Home() {
                     <DoorEventsPerDay isLoading={isLoadingDoorEvents} events={doorResult.rawEvents} />
                 </Card>
                 <Card>
-                    <DoorEventsDurationPerDay openCloseEvents={doorResult.openEvents} />
+                    <DoorEventsDurationPerDay isLoading={isLoadingDoorEvents} openCloseEvents={doorResult.openEvents} />
                 </Card>
                 <Card>
-                    <DoorEventsDurationPerTime openCloseEvents={doorResult.openEvents} />
+                    <DoorEventsDurationPerTime isLoading={isLoadingDoorEvents} openCloseEvents={doorResult.openEvents} />
                 </Card>
             </Grid>
 

@@ -1,9 +1,11 @@
-import {DonutChart, Legend, Text, Title} from "@tremor/react";
+import {DonutChart, Legend, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
 import {DoorOpenEvent} from "@/utils/models";
+import {Spinner} from "@/components/spinner";
 
 interface DoorEventsDurationPerTimeProps {
+    isLoading: boolean;
     openCloseEvents: DoorOpenEvent[];
 }
 
@@ -42,7 +44,7 @@ const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
     ];
 }
 
-export function DoorEventsDurationPerTime({ openCloseEvents } : DoorEventsDurationPerTimeProps) {
+export function DoorEventsDurationPerTime({ isLoading, openCloseEvents } : DoorEventsDurationPerTimeProps) {
     const data = useMemo(() => {
         return buildData(openCloseEvents);
     }, [openCloseEvents]);
@@ -50,25 +52,26 @@ export function DoorEventsDurationPerTime({ openCloseEvents } : DoorEventsDurati
     const valueFormatter = (number: number) => `${number.toLocaleString()} minutes`;
 
     return (
-        <>
+        <div>
             <Title>Door Open Duration Per Time of Day</Title>
-
             <Legend
                 className="mt-6"
                 categories={data.map((v) => v.name.slice(0, v.name.indexOf(')') + 1))}
                 colors={["violet", "rose", "cyan", "amber"]}
             />
-
-            <DonutChart
-                className="mt-6"
-                variant={"pie"}
-                showAnimation={true}
-                data={data}
-                category="time"
-                index="name"
-                valueFormatter={valueFormatter}
-                colors={["violet", "rose", "cyan", "amber"]}
-            />
-        </>
+            {isLoading && <Spinner className={"pt-4"} />}
+            {!isLoading && (<>
+                <DonutChart
+                    className="mt-6"
+                    variant={"pie"}
+                    showAnimation={true}
+                    data={data}
+                    category="time"
+                    index="name"
+                    valueFormatter={valueFormatter}
+                    colors={["violet", "rose", "cyan", "amber"]}
+                />
+            </>)}
+        </div>
     )
 }

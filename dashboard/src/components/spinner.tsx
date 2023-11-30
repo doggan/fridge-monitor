@@ -1,10 +1,15 @@
-import { PuffLoader } from 'react-spinners';
+import {PuffLoader} from 'react-spinners';
+import classNames from "classnames";
 
-export function Spinner() {
+interface SpinnerProps {
+    className?: string;
+}
+
+export function Spinner({ className }: SpinnerProps) {
     return (
-        <div className={'w-full h-full flex items-center justify-center'}>
+        <div className={classNames('w-full h-full flex items-center justify-center', className)}>
             <PuffLoader
-                color={"#FFFFFF"}
+                color={"#64748b"}
                 aria-label="Loading Spinner" data-testid="loader" />
         </div>
     );

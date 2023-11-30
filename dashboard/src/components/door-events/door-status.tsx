@@ -47,29 +47,18 @@ export function DoorStatus({ isLoading, latestEvent }: DoorStatusProps) {
 
     return (
         <>
-            <div>
-                <Title>Door Status</Title>
-                {isLoading && (
-                    <Text>Loading...</Text>
-                )}
-                {!isLoading && (latestEvent ?
-                    <Metric>
-                        <span className={getDoorStatusColor(latestEvent.eventType)}>
-                            {doorEventTypeToString(latestEvent.eventType)}
-                        </span>
-                    </Metric> :
-                    <Text>No data</Text>
-                )}
-            </div>
-            <div className={"pt-2"}>
-                <Title>Door Last Opened</Title>
-                {isLoading && (
-                    <Text>Loading...</Text>
-                )}
-                {!isLoading && (latestEvent ?
-                    lastOpened() : <Text>No data</Text>
-                )}
-            </div>
+            <Title>Door Status</Title>
+            {isLoading && (
+                <Text>Loading...</Text>
+            )}
+            {!isLoading && (latestEvent ?
+                <Metric>
+                    <span className={getDoorStatusColor(latestEvent.eventType)}>
+                        {doorEventTypeToString(latestEvent.eventType)}
+                    </span>
+                </Metric> :
+                <Text>No data</Text>
+            )}
         </>
     )
 }

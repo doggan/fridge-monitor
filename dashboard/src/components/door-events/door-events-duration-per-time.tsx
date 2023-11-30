@@ -21,26 +21,24 @@ const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
         .forEach(e => {
             // Bucket by time of day.
             const hours = e.startTime.getHours() + 1;
-            if (hours < 5 || hours >= 21) {
+            if (hours < 6) {
                 valuesByTime[3] += e.durationInMs;
-            } else if (hours < 10) {
+            } else if (hours < 12) {
                 valuesByTime[0] += e.durationInMs;
-            } else if (hours < 16) {
+            } else if (hours < 18) {
                 valuesByTime[1] += e.durationInMs;
-            } else if (hours < 21) {
-                valuesByTime[2] += e.durationInMs;
             } else {
-                console.error("Unhandled time range: ", hours);
+                valuesByTime[2] += e.durationInMs;
             }
 
             totalTime += e.durationInMs;
         });
 
     return [
-        { name: formatDayPercentage("Morning (5am - 10am)", valuesByTime[0], totalTime), time: formatMsToMinutes(valuesByTime[0]) },
-        { name: formatDayPercentage("Afternoon (10am - 4pm)", valuesByTime[1], totalTime), time: formatMsToMinutes(valuesByTime[1]) },
-        { name: formatDayPercentage("Evening (4pm - 9pm)", valuesByTime[2], totalTime), time: formatMsToMinutes(valuesByTime[2]) },
-        { name: formatDayPercentage("Night (9pm - 5am)", valuesByTime[3], totalTime), time: formatMsToMinutes(valuesByTime[3]) },
+        { name: formatDayPercentage("Morning (6am - 12pm)", valuesByTime[0], totalTime), time: formatMsToMinutes(valuesByTime[0]) },
+        { name: formatDayPercentage("Afternoon (12pm - 6pm)", valuesByTime[1], totalTime), time: formatMsToMinutes(valuesByTime[1]) },
+        { name: formatDayPercentage("Evening (6pm - 12am)", valuesByTime[2], totalTime), time: formatMsToMinutes(valuesByTime[2]) },
+        { name: formatDayPercentage("Night (12am - 6am)", valuesByTime[3], totalTime), time: formatMsToMinutes(valuesByTime[3]) },
     ];
 }
 

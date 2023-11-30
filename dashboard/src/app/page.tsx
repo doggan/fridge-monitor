@@ -1,6 +1,6 @@
 'use client';
 
-import {Card, Col, Grid, Metric, Text, Title} from "@tremor/react";
+import {Card, Col, Grid, Metric, Text} from "@tremor/react";
 import {DoorEventsPerDay} from "@/components/door-events/door-events-per-day";
 import {DoorEventsDurationPerDay} from "@/components/door-events/door-events-duration-per-day";
 import {DoorEventsChart} from "@/components/door-events/door-events-chart";
@@ -11,6 +11,7 @@ import {useDoorEvents} from "@/components/hooks/useDoorEvents";
 import {useTemperatureEvents} from "@/components/hooks/useTemperatureEvents";
 import {DoorStatus} from "@/components/door-events/door-status";
 import {TemperatureChart} from "@/components/temperature/temperature-chart";
+import {DoorLastOpened} from "@/components/door-events/door-last-opened";
 
 export default function Home() {
     // TODO: listing devices
@@ -39,35 +40,43 @@ export default function Home() {
                         latestEvent={doorResult.rawEvents.length > 0 ?
                             doorResult.rawEvents[doorResult.rawEvents.length - 1] : undefined}/>
                 </Card>
+                <Card>
+                    <DoorLastOpened
+                        isLoading={isLoadingDoorEvents}
+                        latestEvent={doorResult.rawEvents.length > 0 ?
+                            doorResult.rawEvents[doorResult.rawEvents.length - 1] : undefined}/>
+                </Card>
             </Grid>
 
             <Grid numItemsMd={3} className="mt-6 gap-6">
-                <Col numColSpanMd={2}>
-                <Card >
-                    <TemperatureChart
-                        isLoading={isLoadingTempEvents}
-                        events={temperatureResult.rawEvents}
-                    />
-                </Card>
+                <Col numColSpanMd={3}>
+                    <Card>
+                        <TemperatureChart
+                            isLoading={isLoadingTempEvents}
+                            events={temperatureResult.rawEvents}
+                        />
+                    </Card>
                 </Col>
-                <Col numColSpanMd={2}>
+                <Col numColSpanMd={3}>
                     <Card>
                         <DoorEventsChart isLoading={isLoadingDoorEvents} events={doorResult.rawEvents}/>
                     </Card>
                 </Col>
-                <Card>
-                    <Title>Door Open Count Stats</Title>
-                    <Text>Door open count avg per day this week: XXX times</Text>
-                    <Text>Time opened avg per day this week: XXX minutes</Text>
-                    <Text>Door open count this week: XXX times (+20% from previous week)</Text>
-                    <Text>Time opened this week: XXX minutes (+20% from previous week)</Text>
-                    <Text>Top 5 Longest Open Durations:</Text>
-                    <Text> - XXX minutes (11/30)</Text>
-                    <Text> - XXX minutes (11/30)</Text>
-                    <Text> - XXX minutes (11/30)</Text>
-                    <Text> - XXX minutes (11/30)</Text>
-                    <Text> - XXX minutes (11/30)</Text>
-                </Card>
+
+                {/* TODO: for later implementation */}
+                {/*<Card>*/}
+                {/*    <Title>Door Open Count Stats</Title>*/}
+                {/*    <Text>Door open count avg per day this week: XXX times</Text>*/}
+                {/*    <Text>Time opened avg per day this week: XXX minutes</Text>*/}
+                {/*    <Text>Door open count this week: XXX times (+20% from previous week)</Text>*/}
+                {/*    <Text>Time opened this week: XXX minutes (+20% from previous week)</Text>*/}
+                {/*    <Text>Top 5 Longest Open Durations:</Text>*/}
+                {/*    <Text> - XXX minutes (11/30)</Text>*/}
+                {/*    <Text> - XXX minutes (11/30)</Text>*/}
+                {/*    <Text> - XXX minutes (11/30)</Text>*/}
+                {/*    <Text> - XXX minutes (11/30)</Text>*/}
+                {/*    <Text> - XXX minutes (11/30)</Text>*/}
+                {/*</Card>*/}
             </Grid>
             <Grid numItemsMd={3} className="mt-6 gap-6">
                 <Card>

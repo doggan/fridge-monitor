@@ -1,10 +1,10 @@
 import {BarList, Bold, Flex, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
-import {OpenCloseEvent} from "@/app/page";
+import {DoorOpenEvent} from "@/utils/models";
 
 interface DoorEventsDurationPerDayProps {
-    openCloseEvents: OpenCloseEvent[];
+    openCloseEvents: DoorOpenEvent[];
 }
 
 interface ChartData {
@@ -12,7 +12,7 @@ interface ChartData {
     value: number;
 }
 
-const buildData = (openCloseEvents: OpenCloseEvent[]) : ChartData[]  => {
+const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
     const timesByDay = [0, 0, 0, 0, 0, 0, 0];
     let totalTime = 0;
 

@@ -1,7 +1,8 @@
-import {BarChart, Subtitle, Title} from "@tremor/react";
+import {BarChart, Card, Subtitle, Title} from "@tremor/react";
 import {RawDoorEvent} from "@/utils/models";
 import {useMemo} from "react";
 import {getDateWithZeroPadding} from "@/utils/time";
+import {Spinner} from "@/components/spinner";
 
 interface DoorEventsChartProps {
     isLoading: boolean,
@@ -9,7 +10,7 @@ interface DoorEventsChartProps {
 }
 
 interface ChartData {
-    name: string;
+    date: string;
     "Opened count": number;
 }
 
@@ -31,7 +32,7 @@ const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
     const countsArray = [];
     for (let key in countsByDate) {
         countsArray.push({
-            name: key
+            date: key
                 // Remove year: 2023-10-11 => 10-11
                 .substring(key.indexOf("-") + 1)
                 // Change month/day formatting: 10-11 => 10/11
@@ -42,7 +43,7 @@ const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
 
     // Sort by date.
     countsArray.sort((a, b) => {
-        return a.name.localeCompare(b.name);
+        return a.date.localeCompare(b.date);
     });
 
     return countsArray
@@ -53,13 +54,13 @@ export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
         return buildData(events);
     }, [events]);
 
-    // if (isLoading) {
-    //     return (
-    //         <Card>
-    //             <Spinner />
-    //         </Card>
-    //     );
-    // }
+    if (isLoading) {
+        return (
+            <Card>
+                <Spinner />
+            </Card>
+        );
+    }
 
     return (
         <>
@@ -71,7 +72,7 @@ export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
                 showAnimation={true}
                 className="mt-6"
                 data={data}
-                index="name"
+                index="date"
                 categories={["Opened count"]}
                 colors={["blue"]}
                 yAxisWidth={48}

@@ -1,24 +1,35 @@
 import {Metric, Text, Title} from "@tremor/react";
 import {cToF, round} from "@/utils/numbers";
 import {timeAgo} from "@/utils/time";
+import {RawTempEvent} from "@/utils/models";
 
 interface CurrentTempProps {
-    // Temperature value in celsius.
-    degreesInC: number;
-    // Timestamp of the last temperature update.
-    timestamp: Date;
+    isLoading: boolean;
+    latestEvent?: RawTempEvent;
 }
 
-export function CurrentTemp({ degreesInC, timestamp } : CurrentTempProps) {
+export function CurrentTemp({isLoading, latestEvent}: CurrentTempProps) {
+    const degreesInC = latestEvent ? latestEvent.value : 0;
+    const timestamp = latestEvent ? new Date(latestEvent.timestamp) : new Date();
+
     return (
         <>
-            <Metric>
-                <span className={"text-blue-500"}>
-                    {round(cToF(degreesInC), 1)}&deg;F ({round(degreesInC, 1)}&deg;C)
-                </span>
-            </Metric>
-            <Text>Last updated: {timeAgo(timestamp)}</Text>
-            <Text>({timestamp.toLocaleString()})</Text>
+            <Title>Current Temperature</Title>
+            {isLoading && (
+                <Text>Loading...</Text>
+            )}
+            {!isLoading && (latestEvent ?
+                    <>
+                        <Metric>
+                            <span className={"text-blue-500"}>
+                                {round(cToF(degreesInC), 1)}&deg;F ({round(degreesInC, 1)}&deg;C)
+                            </span>
+                        </Metric>
+                        <Text>Last updated: {timeAgo(timestamp)}</Text>
+                        <Text>({timestamp.toLocaleString()})</Text>
+                    </> :
+                    <Text>No data</Text>
+            )}
         </>
-    )
+    );
 }

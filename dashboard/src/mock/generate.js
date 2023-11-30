@@ -15,7 +15,7 @@ module.exports = () => {
             "events": _.times(100, (n) => {
                 return {
                     timestamp: faker.date.recent({days: 30}),
-                    value: faker.number.float({min: -20, max: 70, precision: 0.001}),
+                    value: faker.number.float({min: 1.5, max: 7.2, precision: 0.001}),
                 }
             }),
         }

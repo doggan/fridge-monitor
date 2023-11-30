@@ -10,7 +10,7 @@ import {Footer} from "@/components/footer";
 import {useDoorEvents} from "@/components/hooks/useDoorEvents";
 import {useTemperatureEvents} from "@/components/hooks/useTemperatureEvents";
 import {DoorStatus} from "@/components/door-events/door-status";
-import {number} from "prop-types";
+import {TemperatureChart} from "@/components/temperature/temperature-chart";
 
 export default function Home() {
     // TODO: listing devices
@@ -26,20 +26,12 @@ export default function Home() {
             <Metric>Fridge Monitor ❄️</Metric>
             <Text>A dashboard for viewing refrigerator metrics.</Text>
 
-            <Grid numItemsMd={2} className="gap-6 mt-6">
+            <Grid numItemsMd={3} className="gap-6 mt-6">
                 <Card>
-                    <Title>Current Temperature</Title>
-                    {isLoadingTempEvents && (
-                        <Text>Loading...</Text>
-                    )}
-                    {!isLoadingTempEvents && (
-                        temperatureResult.rawEvents.length > 0 ?
-                            <CurrentTemp
-                                degreesInC={temperatureResult.rawEvents[0].value}
-                                timestamp={new Date(temperatureResult.rawEvents[0].timestamp)}
-                            /> :
-                            <Text>No data</Text>
-                    )}
+                    <CurrentTemp
+                        isLoading={isLoadingDoorEvents}
+                        latestEvent={temperatureResult.rawEvents.length > 0 ?
+                            temperatureResult.rawEvents[temperatureResult.rawEvents.length - 1] : undefined}/>
                 </Card>
                 <Card>
                     <DoorStatus
@@ -50,7 +42,15 @@ export default function Home() {
             </Grid>
 
             <Grid numItemsMd={3} className="mt-6 gap-6">
-                <Col numColSpan={1} numColSpanLg={2}>
+                <Col numColSpanMd={2}>
+                <Card >
+                    <TemperatureChart
+                        isLoading={isLoadingTempEvents}
+                        events={temperatureResult.rawEvents}
+                    />
+                </Card>
+                </Col>
+                <Col numColSpanMd={2}>
                     <Card>
                         <DoorEventsChart isLoading={isLoadingDoorEvents} events={doorResult.rawEvents}/>
                     </Card>
@@ -71,18 +71,12 @@ export default function Home() {
             </Grid>
             <Grid numItemsMd={3} className="mt-6 gap-6">
                 <Card>
-                    {/* Placeholder to set height */}
-                    {/*<div className="h-28" />*/}
                     <DoorEventsPerDay isLoading={isLoadingDoorEvents} events={doorResult.rawEvents} />
                 </Card>
                 <Card>
-                    {/* Placeholder to set height */}
-                    {/*<div className="h-28" />*/}
                     <DoorEventsDurationPerDay openCloseEvents={doorResult.openEvents} />
                 </Card>
                 <Card>
-                    {/* Placeholder to set height */}
-                    {/*<div className="h-28" />*/}
                     <DoorEventsDurationPerTime openCloseEvents={doorResult.openEvents} />
                 </Card>
             </Grid>

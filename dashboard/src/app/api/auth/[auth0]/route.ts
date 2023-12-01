@@ -8,6 +8,16 @@ import {
 import {NextResponse} from "next/server";
 
 export const GET = handleAuth({
+    login: async (req, res) => {
+        return await handleLogin(req, res, {
+            authorizationParams: {
+                // Prompts login again in the case where a user was rejected by rule.
+                // Allows the user to try to login with a different account.
+                // Ref: https://github.com/auth0/nextjs-auth0/issues/517
+                prompt: 'login',
+            }
+        })
+    },
     callback: async (req, res) =>{
         try {
             return await handleCallback(req, res);

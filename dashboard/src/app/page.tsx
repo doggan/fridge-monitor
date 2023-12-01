@@ -13,11 +13,15 @@ import {DoorStatus} from "@/components/door-events/door-status";
 import {TemperatureChart} from "@/components/temperature/temperature-chart";
 import {DoorLastOpened} from "@/components/door-events/door-last-opened";
 import dayjs from "dayjs";
+import {Header} from "@/components/header";
 
 export default function Home() {
     // TODO: support querying of a list of devices (e.g. for multiple refrigerators)
     // and allow selection via dropdown instead of relying on a constant.
-    const deviceId = process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID || "unknown";
+    if (!process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID) {
+        throw Error("REFRIGERATOR_DEVICE_ID not defined.")
+    }
+    const deviceId = process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID;
 
     const endDate = dayjs();
     const startDate = endDate.subtract(30, 'day')
@@ -31,8 +35,7 @@ export default function Home() {
 
     return (
         <main className={"p-12"}>
-            <Metric>Fridge Monitor ❄️</Metric>
-            <Text>A dashboard for viewing refrigerator metrics.</Text>
+            <Header />
 
             <Grid numItemsMd={3} className="gap-6 mt-6">
                 <Card>

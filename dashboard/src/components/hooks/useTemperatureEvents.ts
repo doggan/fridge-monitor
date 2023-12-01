@@ -4,14 +4,16 @@ import {fetcher} from "@/utils/fetcher";
 import {useMemo} from "react";
 import {TemperatureEventsResult} from "@/utils/models";
 
-export const useTemperatureEvents = (deviceId: string, startDate: string, endDate: string) => {
+export const useTemperatureEvents = (isLoggedIn: boolean, deviceId: string, startDate: string, endDate: string) => {
     const { data, isLoading } =
         useSWR<GetTemperatureEventsResponse>(
-            `/temperatures?${new URLSearchParams({
-                deviceId,
-                startDate,
-                endDate,
-            })}`,
+            isLoggedIn ?
+                `/temperatures?${new URLSearchParams({
+                    deviceId,
+                    startDate,
+                    endDate,
+                })}` :
+                null,
             fetcher,
         );
 

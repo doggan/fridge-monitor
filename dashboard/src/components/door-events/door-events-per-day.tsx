@@ -15,6 +15,10 @@ interface ChartData {
 }
 
 const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
+    if (events.length === 0) {
+        return [];
+    }
+
     const countsByDay = [0, 0, 0, 0, 0, 0, 0];
 
     let totalOpenCount = 0;
@@ -55,7 +59,10 @@ export function DoorEventsPerDay({ isLoading, events } : DoorEventsPerDayProps) 
         <>
             <Title>Door Opens Per Day of Week</Title>
             {isLoading && <Spinner />}
-            {!isLoading && (<>
+            {!isLoading && data.length === 0 && (
+                <Text className={"pt-4"}>No data</Text>
+            )}
+            {!isLoading && data.length > 0 && (<>
                 <Flex className="mt-4">
                     <Text>
                         <Bold>Day</Bold>

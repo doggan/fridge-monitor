@@ -1,4 +1,4 @@
-import {BarList, Bold, Flex, Text, Title} from "@tremor/react";
+import {BarList, Bold, Card, Flex, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
 import {DoorOpenEvent} from "@/utils/models";
@@ -14,12 +14,16 @@ interface ChartData {
     value: number;
 }
 
-const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
+const buildData = (events: DoorOpenEvent[]) : ChartData[]  => {
+    if (events.length === 0) {
+        return [];
+    }
+
     const timesByDay = [0, 0, 0, 0, 0, 0, 0];
     let totalTime = 0;
 
     // Filter and count.
-    openCloseEvents
+    events
         .forEach(e => {
             const key = new Date(e.startTime).getDay();
             timesByDay[key] += e.durationInMs;
@@ -55,7 +59,10 @@ export function DoorEventsDurationPerDay({ isLoading, openCloseEvents } : DoorEv
         <>
             <Title>Door Open Duration Per Day</Title>
             {isLoading && <Spinner />}
-            {!isLoading && (<>
+            {!isLoading && data.length === 0 && (
+                <Text className={"pt-4"}>No data</Text>
+            )}
+            {!isLoading && data.length > 0 && (<>
                 <Flex className="mt-4">
                     <Text>
                         <Bold>Day</Bold>

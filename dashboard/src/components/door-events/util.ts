@@ -1,4 +1,8 @@
 export const formatDayPercentage = (day: string, val: number, totalVal: number) => {
+    if (totalVal === 0) {
+        return day;
+    }
+
     return `${day} - ${Math.trunc(val / totalVal * 100)}%`
 }
 

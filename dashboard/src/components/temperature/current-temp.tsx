@@ -28,7 +28,7 @@ export function CurrentTemp({isLoading, latestEvent}: CurrentTempProps) {
                         <Text>Last updated: {timeAgo(timestamp)}</Text>
                         <Text>({timestamp.toLocaleString()})</Text>
                     </> :
-                    <Text>No data</Text>
+                    <Text className={"pt-4"}>No data</Text>
             )}
         </>
     );

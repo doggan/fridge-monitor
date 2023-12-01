@@ -57,7 +57,7 @@ export function DoorStatus({ isLoading, latestEvent }: DoorStatusProps) {
                         {doorEventTypeToString(latestEvent.eventType)}
                     </span>
                 </Metric> :
-                <Text>No data</Text>
+                <Text className={"pt-4"}>No data</Text>
             )}
         </>
     )

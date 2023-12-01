@@ -1,4 +1,4 @@
-import {DonutChart, Legend, Title} from "@tremor/react";
+import {DonutChart, Legend, Text, Title} from "@tremor/react";
 import {useMemo} from "react";
 import {formatDayPercentage, formatMsToMinutes} from "@/components/door-events/util";
 import {DoorOpenEvent} from "@/utils/models";
@@ -14,12 +14,16 @@ interface ChartData {
     time: number;
 }
 
-const buildData = (openCloseEvents: DoorOpenEvent[]) : ChartData[]  => {
+const buildData = (events: DoorOpenEvent[]) : ChartData[]  => {
+    if (events.length === 0) {
+        return [];
+    }
+
     const valuesByTime = [0, 0, 0, 0];
     let totalTime = 0;
 
     // Filter and count.
-    openCloseEvents
+    events
         .forEach(e => {
             // Bucket by time of day.
             const hours = e.startTime.getHours() + 1;
@@ -54,13 +58,17 @@ export function DoorEventsDurationPerTime({ isLoading, openCloseEvents } : DoorE
     return (
         <div>
             <Title>Door Open Duration Per Time of Day</Title>
-            <Legend
-                className="mt-6"
-                categories={data.map((v) => v.name.slice(0, v.name.indexOf(')') + 1))}
-                colors={["violet", "rose", "cyan", "amber"]}
-            />
             {isLoading && <Spinner className={"pt-4"} />}
-            {!isLoading && (<>
+            {!isLoading && data.length === 0 && (
+                <Text className={"pt-4"}>No data</Text>
+            )}
+            {!isLoading && data.length > 0 && (<>
+                <Legend
+                    className="mt-6"
+                    categories={data.map((v) => v.name.slice(0, v.name.indexOf(')') + 1))}
+                    colors={["violet", "rose", "cyan", "amber"]}
+                />
+
                 <DonutChart
                     className="mt-6"
                     variant={"pie"}

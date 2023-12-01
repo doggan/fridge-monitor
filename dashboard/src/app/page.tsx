@@ -14,6 +14,7 @@ import {TemperatureChart} from "@/components/temperature/temperature-chart";
 import {DoorLastOpened} from "@/components/door-events/door-last-opened";
 import dayjs from "dayjs";
 import {Header} from "@/components/header";
+import {useUser} from "@auth0/nextjs-auth0/client";
 
 export default function Home() {
     // TODO: support querying of a list of devices (e.g. for multiple refrigerators)
@@ -28,10 +29,13 @@ export default function Home() {
     const startDateStr = startDate.format("YYYY-MM-DD");
     const endDateStr = endDate.format("YYYY-MM-DD");
 
+    const { user } = useUser();
+    const isLoggedIn = !!user;
+
     const { isLoading: isLoadingDoorEvents, result: doorResult } =
-        useDoorEvents(deviceId, startDateStr, endDateStr)
+        useDoorEvents(isLoggedIn, deviceId, startDateStr, endDateStr)
     const { isLoading: isLoadingTempEvents, result: temperatureResult } =
-        useTemperatureEvents(deviceId, startDateStr, endDateStr);
+        useTemperatureEvents(isLoggedIn, deviceId, startDateStr, endDateStr);
 
     return (
         <main className={"p-12"}>

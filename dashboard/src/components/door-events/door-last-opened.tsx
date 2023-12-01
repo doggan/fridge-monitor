@@ -33,7 +33,7 @@ export function DoorLastOpened({ isLoading, latestEvent }: DoorLastOpenedProps) 
                 <Text>Loading...</Text>
             )}
             {!isLoading && (latestEvent ?
-                lastOpened() : <Text>No data</Text>
+                lastOpened() : <Text className={"pt-4"}>No data</Text>
             )}
         </>
     )

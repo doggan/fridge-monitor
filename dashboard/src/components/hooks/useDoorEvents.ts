@@ -3,6 +3,7 @@ import {GetDoorEventsResponse} from "@/utils/requests";
 import {fetcher} from "@/utils/fetcher";
 import {useMemo} from "react";
 import {DoorEventsResult, DoorEventType, DoorOpenEvent, RawDoorEvent} from "@/utils/models";
+import {useUser} from "@auth0/nextjs-auth0/client";
 
 /**
  * Build open events from the raw event data to match open/close pairs.
@@ -54,14 +55,16 @@ const buildOpenEvents = (events: RawDoorEvent[]) => {
     return results;
 }
 
-export const useDoorEvents = (deviceId: string, startDate: string, endDate: string) => {
+export const useDoorEvents = (isLoggedIn: boolean, deviceId: string, startDate: string, endDate: string) => {
     const { data, isLoading } =
         useSWR<GetDoorEventsResponse>(
-            `/door-events?${new URLSearchParams({
-                deviceId,
-                startDate,
-                endDate,
-            })}`,
+            isLoggedIn ?
+                `/door-events?${new URLSearchParams({
+                    deviceId,
+                    startDate,
+                    endDate,
+                })}` :
+                null,
             fetcher,
         );
 

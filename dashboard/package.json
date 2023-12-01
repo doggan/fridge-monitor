@@ -10,6 +10,7 @@
     "mock-server": "json-server -p 3001 ./src/mock/generate.js"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^3.3.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/free-brands-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",

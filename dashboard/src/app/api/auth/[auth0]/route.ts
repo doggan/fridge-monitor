@@ -6,9 +6,10 @@ import {
     IdentityProviderError
 } from '@auth0/nextjs-auth0';
 import {NextResponse} from "next/server";
+import {NextApiRequest, NextApiResponse} from "next";
 
 export const GET = handleAuth({
-    login: async (req, res) => {
+    login: async (req: NextApiRequest, res: NextApiResponse) => {
         return await handleLogin(req, res, {
             authorizationParams: {
                 // Prompts login again in the case where a user was rejected by rule.
@@ -18,7 +19,7 @@ export const GET = handleAuth({
             }
         })
     },
-    callback: async (req, res) =>{
+    callback: async (req: NextApiRequest, res: NextApiResponse) =>{
         try {
             return await handleCallback(req, res);
         } catch (error) {

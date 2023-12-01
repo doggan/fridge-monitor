@@ -1,4 +1,4 @@
-import {Icon} from "@tremor/react";
+import {Icon, Text, Title} from "@tremor/react";
 import {LogoutIcon, UserIcon} from "@heroicons/react/outline";
 import {useUser} from "@auth0/nextjs-auth0/client";
 
@@ -6,19 +6,17 @@ const Login = () => {
     const { user, error, isLoading } = useUser();
 
     if (isLoading) {
-        return <div>Loading...</div>
+        return <Text>Loading...</Text>
     }
     if (error) {
         return <div>{error.message}</div>
     }
 
-    // user?.picture
-
     if (!user) {
         return (
             <div className={"flex"}>
                 <Icon className={"pt-1"} icon={UserIcon} />
-                <a href={"/api/auth/login"}>Log In</a>
+                <Title><a className={"text-md"} href={"/api/auth/login"}>Log In</a></Title>
             </div>
         );
     }
@@ -40,9 +38,9 @@ const Login = () => {
                 <div className={"text-sm text-gray-500"}>{user.email}</div>
             </div>
 
-            <div className={""}>
+            <div className={"flex"}>
                 <Icon className={"pt-1"} icon={LogoutIcon} />
-                <a className={"text-sm"} href={"/api/auth/logout"}>Log Out</a>
+                <Title><a className={"text-md"} href={"/api/auth/logout"}>Log Out</a></Title>
             </div>
          </div>
     );
@@ -50,12 +48,12 @@ const Login = () => {
 
 export function Header() {
     return (
-        <section className="flex">
+        <section className="flex relative place-items-center">
             <div className={"w-2/3"}>
                 <div className={"text-lg sm:text-3xl"}>Fridge Monitor ❄️</div>
                 <div className={"text-gray-500 text-sm"}>A dashboard for viewing refrigerator metrics.</div>
             </div>
-            <div className={"w-1/3"}>
+            <div className={"absolute right-0"}>
                 <Login />
             </div>
         </section>

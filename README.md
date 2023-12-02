@@ -1,4 +1,4 @@
-# Fridge Monitor
+# ❄️ Fridge Monitor ❄️
 
 A monitoring system for refrigerators.
 

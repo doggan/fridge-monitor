@@ -5,13 +5,19 @@ config = {
     # Network password.
     "WLAN_PASSWORD": 'XXXXX',
     
-    # Converting to DER:
-    # openssl x509 -in certificate.pem.crt -out certificate.der -outform DER
-    # openssl rsa -in private.pem.key -out private.key.der -outform DER
-    "MQTT_CLIENT_KEY": "private.pem.der",
-    "MQTT_CLIENT_CERT": "certificate.der",
-    "MQTT_BROKER": "XXXXX.amazonaws.com",
-    "MQTT_BROKER_CA": "AmazonRootCA1.pem",
+    # URL for broker (found in AWS console).
+    "IOT_BROKER_URL": "https://XXX.amazonaws.com",
+    # Broker certificate authority.
+    "IOT_BROKER_CA": "AmazonRootCA1.pem",
+    # Client key file (renamed from XXXXXX-private.pem.key).
+    "IOT_CLIENT_KEY": "private.pem.key",
+    # Client cert file (renamed from XXXXXX-certificate.pem.crt).
+    "IOT_CLIENT_CERT": "certificate.pem.crt",
+    
+    # TODO:
+#    "ENABLE_DOOR_BUZZER": True,
+#    "ENABLE_DOOR_EVENTS": True,
+#    "ENABLE_TEMPERATURE_EVENTS": True,
     
     #"TIMEZONE": "America/Los_Angeles",
     # TODO: changes between -7 and -8 depending on daylight savings. need a better automated way to handle this,

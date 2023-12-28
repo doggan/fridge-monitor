@@ -5,13 +5,16 @@ config = {
     # Network password.
     "WLAN_PASSWORD": 'XXXXX',
     
-    # Converting to DER:
-    # openssl x509 -in certificate.pem.crt -out certificate.der -outform DER
-    # openssl rsa -in private.pem.key -out private.key.der -outform DER
-    "MQTT_CLIENT_KEY": "private.pem.der",
-    "MQTT_CLIENT_CERT": "certificate.der",
-    "MQTT_BROKER": "XXXXX.amazonaws.com",
-    "MQTT_BROKER_CA": "AmazonRootCA1.pem",
+    # API endpoint URL for AWS API Gateway to post events.
+    "API_ENDPOINT": "https://XXXXX.us-east-1.amazonaws.com/release",
+    
+    # Feature flags.
+    "ENABLE_DOOR_BUZZER": True,
+    "ENABLE_DOOR_EVENTS": True,
+    "ENABLE_TEMPERATURE_EVENTS": True,
+    
+    # Number of seconds the door is open before playing the warning buzzer.
+    "DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS": 15,
     
     #"TIMEZONE": "America/Los_Angeles",
     # TODO: changes between -7 and -8 depending on daylight savings. need a better automated way to handle this,

@@ -8,7 +8,10 @@ _format = "%(asctime)s: %(message)s"  # default message format
 def enable_log_file():
     # Dump all stdout/stderr to log file.
     # Used during development, since file will grow in size for ever.
-    logfile = open('log.txt', 'a')
+    tm = time.localtime()
+    logname = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}-log.txt" \
+            .format(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5])
+    logfile = open(logname, 'a')
     os.dupterm(logfile)
 
 def info(message, *args):

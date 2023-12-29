@@ -11,17 +11,49 @@ Using Raspberry Pi Pico W and sensor hardware, we can monitor the status of a re
 
 ![dashboard.png](images%2Fdashboard.png)
 
-## Components:
+## Components
 - `/dashboard` - A Front-End for viewing data interactively.
 - `/device` - Code for running on the Raspberry Pi hardware.
 - `/infrastructure` - IaC (Infrastructure as Code) for configuring the cloud components.
 - `/schematic` - Hardware schematics for how to wire the Raspberry Pi and sensors.
 
-TODO: high level system diagram
+![system-design.png](schematic%2Fsystem-design.png)
 
 ## Usage
 
-- TODO:
+### Dashboard
+
+For local development:
+- Create a `.env.local` file with the following values:
+    - `NEXT_PUBLIC_BASE_API_URL=XXXXX` - This can be anything when using mock data, since the actual device id is not used.
+    - `NEXT_PUBLIC_BASE_API_URL=http://localhost:3001` - The default API URL for retrieving data.
+    - For Auth0 login, add:
+        - `AUTH0_SECRET='XXXXX'`
+        - `AUTH0_BASE_URL='http://localhost:3000'`
+        - `AUTH0_ISSUER_BASE_URL='XXXXX'`
+        - `AUTH0_CLIENT_ID='XXXXX'`
+        - `AUTH0_CLIENT_SECRET='XXXXX'`
+- Run the project:
+  - `npm run dev`
+- Start a local API server to mock data, available at [http://localhost:3001](http://localhost:3001) by default:
+  - `npm run mock-server`
+- Access [http://localhost:3000](http://localhost:3000) to view the result.
+
+For deploying to Vercel, the above environment variables must be defined.
+
+### Device
+
+- Configure the hardware as illustrated in the schematic below.
+- Modify the required constants in `config.py`.
+- Deploy code to hardware (Raspberry Pi Pico W).
+
+#### Schematic
+
+TODO:
+
+### Infrastructure
+
+TODO:
 
 ## Potential Future Improvements
 

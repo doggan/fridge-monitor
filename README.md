@@ -17,7 +17,7 @@ Using Raspberry Pi Pico W and sensor hardware, we can monitor the status of a re
 - `/infrastructure` - IaC (Infrastructure as Code) for configuring the cloud components.
 - `/schematic` - Hardware schematics for how to wire the Raspberry Pi and sensors.
 
-![system-design.png](schematic%2Fsystem-design.png)
+![system-design.png](images%2Fsystem-design.png)
 
 ## Usage
 

@@ -134,7 +134,6 @@ while True:
     if door_last_open_time is not None and not is_door_buzzer_on:
         time_open = time.ticks_diff(time.ticks_ms(), door_last_open_time)
         time_before_warning_ms = config["DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS"] * 1000
-        print(time_open)
         if time_open > time_before_warning_ms:
             buzzer_on(BUZZER_FREQUENCY)
             is_door_buzzer_on = True

@@ -1,4 +1,4 @@
-from machine import Pin, PWM
+from machine import Pin, PWM, Timer
 import machine
 import time
 import ntptime
@@ -6,6 +6,8 @@ import json
 import ubinascii
 from utime import sleep
 import urequests
+import onewire, ds18x20
+from time import sleep
 
 import wifi
 from config import config
@@ -31,11 +33,14 @@ def buzzer_off():
 
 DOOR_PIN = Pin(14, Pin.IN, Pin.PULL_UP)
 
-#DOOR_BUZZER_PIN = Pin(15, Pin.OUT, value=0)
-#buzzer = PWM(Pin(15))
-door_pin = Pin(15, Pin.OUT, value=0)
-DOOR_BUZZER_PIN = PWM(door_pin)
+door_buzzer_pin = Pin(15, Pin.OUT)
+DOOR_BUZZER_PIN = PWM(door_buzzer_pin)
 buzzer_off()
+
+ds_pin = machine.Pin(2)
+DS_SENSOR = ds18x20.DS18X20(onewire.OneWire(ds_pin))
+DS_ROMS = DS_SENSOR.scan()
+
 
 def setup_time():
     logger.info("Setting NTP Time...")
@@ -103,71 +108,57 @@ def on_door_event(event_type):
         response.close()
 
 
+def read_temperature(timer):
+    DS_SENSOR.convert_temp()
+    time.sleep(1)
+    for rom in DS_ROMS:
+        print(DS_SENSOR.read_temp(rom))
+
+
+def main_loop():
+    prev_door_status = DOOR_PIN.value()
+    door_last_open_time = None
+    is_door_buzzer_on = False
+
+    while True:
+        door_status = DOOR_PIN.value()
+        if door_status != prev_door_status:
+            if door_status:
+                on_door_event("open")
+                door_last_open_time = time.ticks_ms()
+            else:
+                if is_door_buzzer_on:
+                    buzzer_off()
+                    is_door_buzzer_on = False
+                    #logger.info("Buzzer OFF")
+                    
+                on_door_event("close")
+                door_last_open_time = None
+
+            prev_door_status = door_status
+
+        if door_last_open_time is not None and not is_door_buzzer_on:
+            time_open = time.ticks_diff(time.ticks_ms(), door_last_open_time)
+            time_before_warning_ms = config["DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS"] * 1000
+            if time_open > time_before_warning_ms:
+                buzzer_on(BUZZER_FREQUENCY)
+                is_door_buzzer_on = True
+                #logger.info("Buzzer ON")
+                
+        time.sleep(0.1)
+
 # TODO: wlan re-connect logic
 wlan = wifi.connect_wlan()
 
 setup_time()
 
-logger.info("Begin application...")
+logger.info("Application started.")
 
-prev_door_status = DOOR_PIN.value()
-door_last_open_time = None
-is_door_buzzer_on = False
+temperature_timer = Timer(-1)
+temperature_timer.init(period=3000, mode=Timer.PERIODIC, callback=read_temperature)
 
-while True:
-    door_status = DOOR_PIN.value()
-    if door_status != prev_door_status:
-        if door_status:
-            on_door_event("open")
-            door_last_open_time = time.ticks_ms()
-        else:
-            if is_door_buzzer_on:
-                buzzer_off()
-                is_door_buzzer_on = False
-                #logger.info("Buzzer OFF")
-                
-            on_door_event("close")
-            door_last_open_time = None
-
-        prev_door_status = door_status
-
-    if door_last_open_time is not None and not is_door_buzzer_on:
-        time_open = time.ticks_diff(time.ticks_ms(), door_last_open_time)
-        time_before_warning_ms = config["DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS"] * 1000
-        if time_open > time_before_warning_ms:
-            buzzer_on(BUZZER_FREQUENCY)
-            is_door_buzzer_on = True
-            #logger.info("Buzzer ON")
-            
-    time.sleep(0.1)
-
-
-"""
-    import machine, onewire, ds18x20
-from time import sleep
- 
-ds_pin = machine.Pin(2)
- 
-ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
- 
-roms = ds_sensor.scan()
- 
-print('Found DS devices')
-print('Temperature (°C)')
- 
-while True:
- 
-  ds_sensor.convert_temp()
- 
-  sleep(1)
- 
-  for rom in roms:
- 
-    print(ds_sensor.read_temp(rom))
- 
-  sleep(3)
-"""
-
-
-
+try:
+    main_loop()
+except KeyboardInterrupt:
+    temperature_timer.deinit()
 

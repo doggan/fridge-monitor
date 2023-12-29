@@ -11,6 +11,9 @@ config = {
     # Number of seconds the door is open before playing the warning buzzer.
     "DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS": 15,
     
+    # How often to collect temperature data.
+    "TEMPERATURE_READ_FREQUENCY_IN_SECONDS": 60,
+    
     #"TIMEZONE": "America/Los_Angeles",
     # TODO: changes between -7 and -8 depending on daylight savings. need a better automated way to handle this,
     # but the pico doesn't have timezone data. we could query an external API periodically to read this in.

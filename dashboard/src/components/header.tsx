@@ -16,7 +16,7 @@ const Login = () => {
         return (
             <div className={"flex"}>
                 <Icon className={"pt-1"} icon={UserIcon} />
-                <Title><a className={"text-md"} href={"/api/auth/login"}>Log In</a></Title>
+                <Title><a className={"text-sm"} href={"/api/auth/login"}>Log In</a></Title>
             </div>
         );
     }
@@ -40,7 +40,7 @@ const Login = () => {
 
             <div className={"flex"}>
                 <Icon className={"pt-1"} icon={LogoutIcon} />
-                <Title><a className={"text-md"} href={"/api/auth/logout"}>Log Out</a></Title>
+                <Title><a className={"text-sm"} href={"/api/auth/logout"}>Log Out</a></Title>
             </div>
          </div>
     );
@@ -48,12 +48,12 @@ const Login = () => {
 
 export function Header() {
     return (
-        <section className="flex relative place-items-center">
-            <div className={"w-2/3"}>
+        <section className="flex flex-wrap relative place-items-center">
+            <div className={"w-full md:w-2/3"}>
                 <div className={"text-lg sm:text-3xl"}>Fridge Monitor ❄️</div>
                 <div className={"text-gray-500 text-sm"}>A dashboard for viewing refrigerator metrics.</div>
             </div>
-            <div className={"absolute right-0"}>
+            <div className={"pt-4 md:pt-0 md:absolute md:right-0"}>
                 <Login />
             </div>
         </section>

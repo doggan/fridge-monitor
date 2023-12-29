@@ -7,12 +7,7 @@ config = {
     
     # API endpoint URL for AWS API Gateway to post events.
     "API_ENDPOINT": "https://XXXXX.us-east-1.amazonaws.com/release",
-    
-    # Feature flags.
-    "ENABLE_DOOR_BUZZER": True,
-    "ENABLE_DOOR_EVENTS": True,
-    "ENABLE_TEMPERATURE_EVENTS": True,
-    
+
     # Number of seconds the door is open before playing the warning buzzer.
     "DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS": 15,
     

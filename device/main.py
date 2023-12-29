@@ -15,22 +15,27 @@ import logger
 #logger.enable_log_file()
 #logger.info("---- begin execution -----")
 
-logger.info(f"Door buzzer enabled: {config["ENABLE_DOOR_BUZZER"]}")
-logger.info(f"Door events enabled: {config["ENABLE_DOOR_EVENTS"]}")
-logger.info(f"Temperature events enabled: {config["ENABLE_TEMPERATURE_EVENTS"]}")
-
 DEVICE_ID = ubinascii.hexlify(machine.unique_id())
 logger.info(f"Device ID: {DEVICE_ID}")
 
 API_URL_DOOR_EVENTS = config["API_ENDPOINT"] + "/door-events"
 API_URL_TEMP_EVENTS = config["API_ENDPOINT"] + "/temperature-events"
+BUZZER_FREQUENCY = 262 # C4 note == 262
 
-DOOR_PIN = None
-DOOR_BUZZER_PIN = None
-if config["ENABLE_DOOR_EVENTS"]:
-    DOOR_PIN = Pin(14, Pin.IN, Pin.PULL_UP)
-if config["ENABLE_DOOR_BUZZER"]:
-    DOOR_BUZZER_PIN = Pin(15, Pin.OUT)
+def buzzer_on(frequency):
+    DOOR_BUZZER_PIN.duty_u16(1000)
+    DOOR_BUZZER_PIN.freq(frequency)
+
+def buzzer_off():
+    DOOR_BUZZER_PIN.duty_u16(0)
+
+DOOR_PIN = Pin(14, Pin.IN, Pin.PULL_UP)
+
+#DOOR_BUZZER_PIN = Pin(15, Pin.OUT, value=0)
+#buzzer = PWM(Pin(15))
+door_pin = Pin(15, Pin.OUT, value=0)
+DOOR_BUZZER_PIN = PWM(door_pin)
+buzzer_off()
 
 def setup_time():
     logger.info("Setting NTP Time...")
@@ -80,16 +85,13 @@ def get_now():
     """
 
 
-def build_msg_door_event(event_type):
-    return json.dumps({
+def on_door_event(event_type):
+    event_data = json.dumps({
         "deviceId": DEVICE_ID,
         "timestamp": get_now(),
         "eventType": event_type,
     })
-
-def on_door_event(event_type):
-    event_data = build_msg_door_event(event_type)
-    #logger.info("on_door_event: %s", event_data)
+    logger.info("on_door_event: %s", event_data)
     
     headers = {'Content-Type': 'application/json'}
 
@@ -108,32 +110,37 @@ setup_time()
 
 logger.info("Begin application...")
 
-prev_door_status = None
+prev_door_status = DOOR_PIN.value()
 door_last_open_time = None
-
-if config["ENABLE_DOOR_EVENTS"]:
-    prev_door_status = DOOR_PIN.value()
+is_door_buzzer_on = False
 
 while True:
-    if config["ENABLE_DOOR_EVENTS"]:
-        door_status = DOOR_PIN.value()
-        if door_status != prev_door_status:
-            if door_status:
-                on_door_event("open")
-                door_last_open_time = time.ticks_ms()
-            else:
-                on_door_event("close")
-            prev_door_status = door_status
+    door_status = DOOR_PIN.value()
+    if door_status != prev_door_status:
+        if door_status:
+            on_door_event("open")
+            door_last_open_time = time.ticks_ms()
+        else:
+            if is_door_buzzer_on:
+                buzzer_off()
+                is_door_buzzer_on = False
+                #logger.info("Buzzer OFF")
+                
+            on_door_event("close")
+            door_last_open_time = None
 
+        prev_door_status = door_status
+
+    if door_last_open_time is not None and not is_door_buzzer_on:
+        time_open = time.ticks_diff(time.ticks_ms(), door_last_open_time)
+        time_before_warning_ms = config["DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS"] * 1000
+        print(time_open)
+        if time_open > time_before_warning_ms:
+            buzzer_on(BUZZER_FREQUENCY)
+            is_door_buzzer_on = True
+            #logger.info("Buzzer ON")
+            
     time.sleep(0.1)
-
-    #if config["ENABLE_DOOR_BUZZER"]:
-    #if door_status:
-    #    if door_last_open_time is not None and time.ticks_diff(time.ticks_ms(), door_last_open_time) > config["DOOR_OPEN_TIME_BEFORE_WARNING_IN_SECONDS"] * 1000:
-    #        DOOR_BUZZER_PIN.high()
-    #else:
-    #    DOOR_BUZZER_PIN.low()
-
 
 
 """
@@ -161,6 +168,7 @@ while True:
  
   sleep(3)
 """
+
 
 
 

@@ -8,7 +8,7 @@ export const useTemperatureEvents = (isLoggedIn: boolean, deviceId: string, star
     const { data, isLoading } =
         useSWR<GetTemperatureEventsResponse>(
             isLoggedIn ?
-                `/temperatures?${new URLSearchParams({
+                `/temperature-events?${new URLSearchParams({
                     deviceId,
                     startDate,
                     endDate,

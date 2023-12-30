@@ -50,6 +50,13 @@ For deploying to Vercel, the above environment variables must be defined.
 
 #### Schematic
 
+Notes:
+- For door sensors, I used MC-38 Wired Door Sensor Magnetic Switch.
+- For door buzzer, I used an Active Buzzer.
+- For temperature sensor, I used a DS18x20.
+  - The official spec says a 4.7K pullup resistor is needed from data to the 3.3V power. Using a 4.7K resistor didn't work for me - the sensor could no longer be detected. I think it's due to the length of my particular sensor wire, so I reduced it to 2.2K in my final configuration.
+
+Diagrams:
 ![breadboard](schematic%2Ffridge_bb.png)
 ![schematic](schematic%2Ffridge_schem.png)
 

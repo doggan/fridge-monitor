@@ -176,7 +176,7 @@ setup_time()
 logger.info("Application started.")
 
 temperature_read_period_ms = config["TEMPERATURE_READ_FREQUENCY_IN_SECONDS"] * 1000
-logger.info("Temperature read period: %s", config["TEMPERATURE_READ_FREQUENCY_IN_SECONDS"])
+logger.info("Temperature read period: %s seconds", config["TEMPERATURE_READ_FREQUENCY_IN_SECONDS"])
 
 temperature_timer = Timer(-1)
 temperature_timer.init(period=temperature_read_period_ms, mode=Timer.PERIODIC, callback=read_temperature)

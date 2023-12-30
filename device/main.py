@@ -37,11 +37,13 @@ door_buzzer_pin = Pin(15, Pin.OUT)
 DOOR_BUZZER_PIN = PWM(door_buzzer_pin)
 buzzer_off()
 
-ds_pin = machine.Pin(2)
+ds_pin = Pin(22)
 DS_SENSOR = ds18x20.DS18X20(onewire.OneWire(ds_pin))
 DS_ROMS = DS_SENSOR.scan()
 
-
+if len(DS_ROMS) == 0:
+    logger.info("Error: No DS Roms detected.")
+    
 def setup_time():
     logger.info("Setting NTP Time...")
     
@@ -107,12 +109,31 @@ def on_door_event(event_type):
     finally:
         response.close()
 
+def on_temperature_event(temp):
+    event_data = json.dumps({
+        "deviceId": DEVICE_ID,
+        "timestamp": get_now(),
+        "value": temp,
+    })
+    logger.info("on_temperature_event: %s", event_data)
+    
+    headers = {'Content-Type': 'application/json'}
+
+    try:
+        response = urequests.post(API_URL_TEMP_EVENTS, data=event_data, headers=headers)
+        if response.status_code != 200:
+            logger.info("Temperature event post failure: %s - %s", response.status_code, response.text)
+    finally:
+        response.close()
+
 
 def read_temperature(timer):
     DS_SENSOR.convert_temp()
     time.sleep(1)
     for rom in DS_ROMS:
-        print(DS_SENSOR.read_temp(rom))
+        temp = DS_SENSOR.read_temp(rom)
+        on_temperature_event(temp)
+        break
 
 
 def main_loop():
@@ -154,11 +175,15 @@ setup_time()
 
 logger.info("Application started.")
 
+temperature_read_period_ms = config["TEMPERATURE_READ_FREQUENCY_IN_SECONDS"] * 1000
+logger.info("Temperature read period: %s", config["TEMPERATURE_READ_FREQUENCY_IN_SECONDS"])
+
 temperature_timer = Timer(-1)
-temperature_timer.init(period=3000, mode=Timer.PERIODIC, callback=read_temperature)
+temperature_timer.init(period=temperature_read_period_ms, mode=Timer.PERIODIC, callback=read_temperature)
 
 try:
     main_loop()
 except KeyboardInterrupt:
+    logger.info("Application terminated.")
     temperature_timer.deinit()
 

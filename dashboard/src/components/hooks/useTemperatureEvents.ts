@@ -29,8 +29,16 @@ export const useTemperatureEvents = (isLoggedIn: boolean, deviceId: string, star
         // of the viewing user's local time.
 
         // Sort events by time.
-        const sortedEvents = [...data.events].sort((a, b) => {
+        let sortedEvents = [...data.events].sort((a, b) => {
             return a.timestamp.localeCompare(b.timestamp);
+        });
+
+        sortedEvents = sortedEvents.map(e => {
+            return {
+                ...e,
+                // API values may be returned as strings, so force casting here.
+                value: Number(e.value),
+            }
         });
 
         return {

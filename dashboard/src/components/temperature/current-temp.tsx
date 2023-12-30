@@ -22,11 +22,11 @@ export function CurrentTemp({isLoading, latestEvent}: CurrentTempProps) {
                     <>
                         <Metric>
                             <span className={"text-blue-500"}>
-                                {round(cToF(degreesInC), 1)}&deg;F ({round(degreesInC, 1)}&deg;C)
+                                <span>{round(cToF(degreesInC), 1)}&deg;F </span><span className={"text-lg"}>({round(degreesInC, 1)}&deg;C)</span>
                             </span>
                         </Metric>
                         <Text>Last updated: {timeAgo(timestamp)}</Text>
-                        <Text>({timestamp.toLocaleString()})</Text>
+                        <Text>{timestamp.toLocaleString()}</Text>
                     </> :
                     <Text className={"pt-4"}>No data</Text>
             )}

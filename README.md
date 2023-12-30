@@ -14,7 +14,7 @@ Using Raspberry Pi Pico W and sensor hardware, we can monitor the status of a re
 ## Components
 - `/dashboard` - A Front-End for viewing data interactively.
 - `/device` - Code for running on the Raspberry Pi hardware.
-- `/infrastructure` - IaC (Infrastructure as Code) for configuring the cloud components.
+- `/infrastructure` - IaC (Infrastructure as Code) for configuring the cloud components (currently incomplete).
 - `/schematic` - Hardware schematics for how to wire the Raspberry Pi and sensors.
 
 ### System Overview
@@ -55,4 +55,6 @@ For deploying to Vercel, the above environment variables must be defined.
 
 ## Potential Future Improvements
 
-- Add a weekly report email generator to get updates and trends on usage without having to view the dashboard.
+- Add a weekly report email generator to get updates and trends on usage without having to view the dashboard (lambda function).
+- Dashboard: periodically refresh data without having to reload page.
+- Finish adding CDK to `/infrastructure` (API Gateway, DynamoDB, ...).

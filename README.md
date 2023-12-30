@@ -50,11 +50,8 @@ For deploying to Vercel, the above environment variables must be defined.
 
 #### Schematic
 
-TODO:
-
-### Infrastructure
-
-TODO:
+![breadboard](schematic%2Ffridge_bb.png)
+![schematic](schematic%2Ffridge_schem.png)
 
 ## Potential Future Improvements
 

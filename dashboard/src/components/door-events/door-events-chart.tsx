@@ -32,11 +32,7 @@ const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
     const countsArray = [];
     for (let key in countsByDate) {
         countsArray.push({
-            date: key
-                // Remove year: 2023-10-11 => 10-11
-                .substring(key.indexOf("-") + 1)
-                // Change month/day formatting: 10-11 => 10/11
-                .replace("-", "/"),
+            date: key,
             "Opened count": countsByDate[key]
         })
     }
@@ -46,7 +42,16 @@ const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
         return a.date.localeCompare(b.date);
     });
 
-    return countsArray
+    return countsArray.map(v => {
+        return {
+            ...v,
+            date: v.date
+                // Remove year: 2023-10-11 => 10-11
+                .substring(v.date.indexOf("-") + 1)
+                // Change month/day formatting: 10-11 => 10/11
+                .replace("-", "/"),
+        }
+    });
 }
 
 export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {

@@ -24,9 +24,11 @@ export default function Home() {
     }
     const deviceId = process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID;
 
-    const endDate = dayjs();
-    const startDate = endDate.subtract(30, 'day')
+    const todayDate = dayjs();
+    const startDate = todayDate.subtract(30, 'day')
     const startDateStr = startDate.format("YYYY-MM-DD");
+    // API is exclusive of end date, so we add one.
+    const endDate = todayDate.add(1, 'day');
     const endDateStr = endDate.format("YYYY-MM-DD");
 
     const { user } = useUser();

@@ -7,6 +7,7 @@ import {Spinner} from "@/components/spinner";
 interface DoorEventsChartProps {
     isLoading: boolean,
     events: RawDoorEvent[];
+    dayRange: number;
 }
 
 interface ChartData {
@@ -54,7 +55,7 @@ const buildData = (events: RawDoorEvent[]) : ChartData[]  => {
     });
 }
 
-export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
+export function DoorEventsChart({ isLoading, events, dayRange } : DoorEventsChartProps) {
     const data = useMemo(() => {
         return buildData(events);
     }, [events]);
@@ -67,9 +68,9 @@ export function DoorEventsChart({ isLoading, events } : DoorEventsChartProps) {
 
     return (
         <>
-            <Title>Door Open Counts (30 days)</Title>
+            <Title>Door Open Counts ({dayRange} days)</Title>
             <Subtitle>
-                # of times the refrigerator door has been opened over the last 30 days.
+                # of times the refrigerator door has been opened over the last {dayRange} days.
             </Subtitle>
             <BarChart
                 showAnimation={true}

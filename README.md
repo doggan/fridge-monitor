@@ -65,3 +65,4 @@ Diagrams:
 - Add a weekly report email generator to get updates and trends on usage without having to view the dashboard (lambda function).
 - Dashboard: periodically refresh data without having to reload page.
 - Finish adding CDK to `/infrastructure` (API Gateway, DynamoDB, ...).
+- Make the `/temperature-events` API paginated similar to `/door-events`.

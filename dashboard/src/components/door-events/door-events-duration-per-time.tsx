@@ -22,7 +22,7 @@ const buildData = (events: DoorOpenEvent[]) : ChartData[]  => {
     const valuesByTime = [0, 0, 0, 0];
     let totalTime = 0;
 
-    // Filter and count.
+    // Count.
     events
         .forEach(e => {
             // Bucket by time of day.

@@ -8,6 +8,7 @@ import {getDateWithZeroPadding} from "@/utils/time";
 interface TemperatureChartProps {
     isLoading: boolean,
     events: RawTempEvent[];
+    dayRange: number;
 }
 
 interface ChartData {
@@ -40,7 +41,7 @@ const buildData = (events: RawTempEvent[]) : ChartData[]  => {
     });
 }
 
-export function TemperatureChart({ isLoading, events } : TemperatureChartProps) {
+export function TemperatureChart({ isLoading, events, dayRange } : TemperatureChartProps) {
     const data = useMemo(() => {
         return buildData(events);
     }, [events]);
@@ -53,9 +54,9 @@ export function TemperatureChart({ isLoading, events } : TemperatureChartProps) 
 
     return (
         <>
-            <Title>Temperature (30 days)</Title>
+            <Title>Temperature ({dayRange} days)</Title>
             <Subtitle>
-                Internal temperature reading of the refrigerator over the last 30 days.
+                Internal temperature reading of the refrigerator over the last {dayRange} days.
             </Subtitle>
             <LineChart
                 showAnimation={true}

@@ -1,6 +1,6 @@
 'use client';
 
-import {Card, Col, Grid, Metric, Text} from "@tremor/react";
+import {Card, Col, Grid} from "@tremor/react";
 import {DoorEventsPerDay} from "@/components/door-events/door-events-per-day";
 import {DoorEventsDurationPerDay} from "@/components/door-events/door-events-duration-per-day";
 import {DoorEventsChart} from "@/components/door-events/door-events-chart";
@@ -12,10 +12,12 @@ import {useTemperatureEvents} from "@/components/hooks/useTemperatureEvents";
 import {DoorStatus} from "@/components/door-events/door-status";
 import {TemperatureChart} from "@/components/temperature/temperature-chart";
 import {DoorLastOpened} from "@/components/door-events/door-last-opened";
-import dayjs from "dayjs";
 import {Header} from "@/components/header";
 import {useUser} from "@auth0/nextjs-auth0/client";
 import {getLocalTimeUTC} from "@/utils/time";
+import {DoorEventsDurationChart} from "@/components/door-events/door-events-duration-chart";
+
+const DAY_RANGE = 14;
 
 export default function Home() {
     // TODO: support querying of a list of devices (e.g. for multiple refrigerators)
@@ -27,7 +29,7 @@ export default function Home() {
 
     // Server APIs use UTC time.
     const todayDate = getLocalTimeUTC();
-    const startDate = todayDate.subtract(30, 'day')
+    const startDate = todayDate.subtract(DAY_RANGE - 1, 'day');
     const startDateStr = startDate.format("YYYY-MM-DD");
     // API is exclusive of end date, so we add one.
     const endDate = todayDate.add(1, 'day');
@@ -66,18 +68,24 @@ export default function Home() {
                 </Card>
             </Grid>
 
-            <Grid numItemsMd={3} className="mt-6 gap-6">
-                <Col numColSpanMd={3}>
+            <Grid numItemsMd={4} className="mt-6 gap-6">
+                <Col numColSpanMd={4}>
                     <Card>
                         <TemperatureChart
                             isLoading={isLoadingTempEvents}
                             events={temperatureResult.rawEvents}
+                            dayRange={DAY_RANGE}
                         />
                     </Card>
                 </Col>
-                <Col numColSpanMd={3}>
+                <Col numColSpanMd={2}>
                     <Card>
-                        <DoorEventsChart isLoading={isLoadingDoorEvents} events={doorResult.rawEvents}/>
+                        <DoorEventsChart isLoading={isLoadingDoorEvents} events={doorResult.rawEvents} dayRange={DAY_RANGE}/>
+                    </Card>
+                </Col>
+                <Col numColSpanMd={2}>
+                    <Card>
+                        <DoorEventsDurationChart isLoading={isLoadingDoorEvents} events={doorResult.openEvents} dayRange={DAY_RANGE}/>
                     </Card>
                 </Col>
 

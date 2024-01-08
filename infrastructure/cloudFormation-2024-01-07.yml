@@ -1,0 +1,384 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    IAMManagedPolicy:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "APIGateway_DynamoDB"
+            Path: "/"
+            PolicyDocument: |
+                {
+                	"Version": "2012-10-17",
+                	"Statement": [
+                		{
+                			"Sid": "VisualEditor0",
+                			"Effect": "Allow",
+                			"Action": [
+                				"dynamodb:Query",
+                				"dynamodb:PutItem"
+                			],
+                			"Resource": "*"
+                		}
+                	]
+                }
+
+    DynamoDBTable:
+        Type: "AWS::DynamoDB::Table"
+        Properties:
+            AttributeDefinitions: 
+              - 
+                AttributeName: "deviceId"
+                AttributeType: "S"
+              - 
+                AttributeName: "timestamp"
+                AttributeType: "S"
+            TableName: "refrig_temp"
+            KeySchema: 
+              - 
+                AttributeName: "deviceId"
+                KeyType: "HASH"
+              - 
+                AttributeName: "timestamp"
+                KeyType: "RANGE"
+            ProvisionedThroughput: 
+                ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+
+    DynamoDBTable2:
+        Type: "AWS::DynamoDB::Table"
+        Properties:
+            AttributeDefinitions: 
+              - 
+                AttributeName: "deviceId"
+                AttributeType: "S"
+              - 
+                AttributeName: "timestamp"
+                AttributeType: "S"
+            TableName: "refrig_door"
+            KeySchema: 
+              - 
+                AttributeName: "deviceId"
+                KeyType: "HASH"
+              - 
+                AttributeName: "timestamp"
+                KeyType: "RANGE"
+            ProvisionedThroughput: 
+                ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+
+    ApiGatewayRestApi:
+        Type: "AWS::ApiGateway::RestApi"
+        Properties:
+            Name: "Refrigerator"
+            Description: "Refrigerator monitoring on Raspberry Pi Pico."
+            ApiKeySourceType: "HEADER"
+            EndpointConfiguration: 
+                Types: 
+                  - "REGIONAL"
+
+    ApiGatewayMethod:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "u2r7oh"
+            HttpMethod: "OPTIONS"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: {}
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                ResponseParameters: 
+                    "method.response.header.Access-Control-Allow-Headers": false
+                    "method.response.header.Access-Control-Allow-Methods": false
+                    "method.response.header.Access-Control-Allow-Origin": false
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "u2r7oh"
+                IntegrationResponses: 
+                  - 
+                    ResponseParameters: 
+                        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'"
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                RequestTemplates: 
+                    "application/json": "{\"statusCode\": 200}"
+                TimeoutInMillis: 29000
+                Type: "MOCK"
+
+    ApiGatewayMethod2:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "l8he6w"
+            HttpMethod: "POST"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: {}
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "l8he6w"
+                Credentials: !GetAtt IAMRole.Arn
+                IntegrationHttpMethod: "POST"
+                IntegrationResponses: 
+                  - 
+                    ResponseTemplates: {}
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                RequestTemplates: 
+                    "application/json": !Sub |
+                        { 
+                            "TableName": "${DynamoDBTable}",
+                            "Item": {
+                        	    "deviceId": {
+                                    "S": "$input.path('$.deviceId')"
+                                    },
+                                "timestamp": {
+                                    "S": "$input.path('$.timestamp')"
+                                    },
+                                "value": {
+                                    "S": "$input.path('$.value')"
+                                }
+                            }
+                        }
+                TimeoutInMillis: 29000
+                Type: "AWS"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/PutItem"
+
+    ApiGatewayMethod3:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "l8he6w"
+            HttpMethod: "GET"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: 
+                "method.request.querystring.deviceId": true
+                "method.request.querystring.startDate": true
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                ResponseParameters: 
+                    "method.response.header.Access-Control-Allow-Origin": false
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "l8he6w"
+                Credentials: !GetAtt IAMRole.Arn
+                IntegrationHttpMethod: "POST"
+                IntegrationResponses: 
+                  - 
+                    ResponseParameters: 
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    ResponseTemplates: 
+                        "application/json": |
+                            #set($inputRoot = $input.path('$'))
+                            {
+                                "events": [
+                                    #foreach($elem in $inputRoot.Items) {
+                                        "timestamp": "$elem.timestamp.S",
+                                        "value": "$elem.value.S"
+                                    }#if($foreach.hasNext),#end
+                                #end
+                                ]
+                            }
+                    SelectionPattern: ""
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                RequestTemplates: 
+                    "application/json": !Sub |
+                        {
+                            "TableName": "${DynamoDBTable}",
+                            "KeyConditionExpression": "deviceId = :deviceId AND #ts >= :startDate",
+                            "ExpressionAttributeValues": {
+                              ":deviceId": { "S": "$input.params('deviceId')" },
+                              ":startDate": { "S": "$input.params('startDate')" }
+                            },
+                            "ExpressionAttributeNames": { "#ts": "timestamp" }
+                        }
+                TimeoutInMillis: 29000
+                Type: "AWS"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/Query"
+
+    ApiGatewayMethod4:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "l8he6w"
+            HttpMethod: "OPTIONS"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: {}
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                ResponseParameters: 
+                    "method.response.header.Access-Control-Allow-Headers": false
+                    "method.response.header.Access-Control-Allow-Methods": false
+                    "method.response.header.Access-Control-Allow-Origin": false
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "l8he6w"
+                IntegrationResponses: 
+                  - 
+                    ResponseParameters: 
+                        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'"
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    SelectionPattern: ""
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                RequestTemplates: 
+                    "application/json": "{\"statusCode\": 200}"
+                TimeoutInMillis: 29000
+                Type: "MOCK"
+
+    ApiGatewayMethod5:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "u2r7oh"
+            HttpMethod: "GET"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            RequestParameters: 
+                "method.request.querystring.deviceId": true
+                "method.request.querystring.endDate": true
+                "method.request.querystring.lastEvaluatedKey": false
+                "method.request.querystring.limit": false
+                "method.request.querystring.startDate": true
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                ResponseParameters: 
+                    "method.response.header.Access-Control-Allow-Origin": false
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "u2r7oh"
+                Credentials: !GetAtt IAMRole.Arn
+                IntegrationHttpMethod: "POST"
+                IntegrationResponses: 
+                  - 
+                    ResponseParameters: 
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    ResponseTemplates: 
+                        "application/json": |
+                            #set($inputRoot = $input.path('$'))
+                            {
+                                "events": [
+                                    #foreach($elem in $inputRoot.Items) {
+                                        "timestamp": "$elem.timestamp.S",
+                                        "eventType": "$elem.eventType.S"
+                                    }#if($foreach.hasNext),#end
+                                #end
+                                ],
+                                #if($inputRoot.LastEvaluatedKey)
+                                "responseMetadata": {
+                                    "lastEvaluatedKey": "$inputRoot.LastEvaluatedKey.timestamp.S"
+                                }
+                                #else
+                                "lastEvaluatedKey": null
+                                #end
+                            }
+                            
+                    SelectionPattern: ""
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_TEMPLATES"
+                RequestTemplates: 
+                    "application/json": !Sub |
+                        {
+                            "TableName": "${DynamoDBTable2}",
+                            "KeyConditionExpression": "deviceId = :deviceId AND #ts BETWEEN :startDate and :endDate",
+                            "ExpressionAttributeValues": {
+                              ":deviceId": { "S": "$input.params('deviceId')" },
+                              ":startDate": { "S": "$input.params('startDate')" },
+                              ":endDate": { "S": "$input.params('endDate')" }
+                            },
+                            "ExpressionAttributeNames": { "#ts": "timestamp" },
+                            
+                            #set($lastEvaluatedKey = $input.params('lastEvaluatedKey'))
+                            #if($lastEvaluatedKey && $lastEvaluatedKey.length() != 0)
+                            "ExclusiveStartKey": {
+                                "deviceId": { "S": "$input.params('deviceId')" },
+                                "timestamp": { "S": "$input.params('lastEvaluatedKey')" }
+                            },
+                            #end
+                            
+                            #set($limit = $input.params('limit'))
+                            #if($limit && $limit.length() != 0)
+                            "Limit": $input.params('limit')
+                            #else
+                            "Limit": 1000
+                            #end
+                        }
+                        
+                TimeoutInMillis: 29000
+                Type: "AWS"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/Query"
+
+    ApiGatewayMethod6:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "u2r7oh"
+            HttpMethod: "POST"
+            AuthorizationType: "NONE"
+            ApiKeyRequired: false
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "u2r7oh"
+                Credentials: !GetAtt IAMRole.Arn
+                IntegrationHttpMethod: "POST"
+                IntegrationResponses: 
+                  - 
+                    SelectionPattern: ""
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                RequestTemplates: 
+                    "application/json": !Sub |
+                        { 
+                            "TableName": "${DynamoDBTable2}",
+                            "Item": {
+                        	    "deviceId": {
+                                    "S": "$input.path('$.deviceId')"
+                                    },
+                                "timestamp": {
+                                    "S": "$input.path('$.timestamp')"
+                                    },
+                                "eventType": {
+                                    "S": "$input.path('$.eventType')"
+                                }
+                            }
+                        }
+                TimeoutInMillis: 29000
+                Type: "AWS"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/PutItem"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ApiGateway"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"apigateway.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy
+              - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+            Description: ""
+

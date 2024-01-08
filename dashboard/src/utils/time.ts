@@ -1,8 +1,15 @@
 import dayjs from 'dayjs'
 import * as relativeTime from 'dayjs/plugin/relativeTime'
+import * as utc from 'dayjs/plugin/utc'
 
 // @ts-ignore
 dayjs.extend(relativeTime);
+// @ts-ignore
+dayjs.extend(utc);
+
+export const getLocalTimeUTC = () => {
+    return dayjs().utc();
+}
 
 export const getDateWithZeroPadding = (date: Date) => {
     // Note: this currently using the user's local time. If we ever

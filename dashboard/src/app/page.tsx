@@ -15,6 +15,7 @@ import {DoorLastOpened} from "@/components/door-events/door-last-opened";
 import dayjs from "dayjs";
 import {Header} from "@/components/header";
 import {useUser} from "@auth0/nextjs-auth0/client";
+import {getLocalTimeUTC} from "@/utils/time";
 
 export default function Home() {
     // TODO: support querying of a list of devices (e.g. for multiple refrigerators)
@@ -24,7 +25,8 @@ export default function Home() {
     }
     const deviceId = process.env.NEXT_PUBLIC_REFRIGERATOR_DEVICE_ID;
 
-    const todayDate = dayjs();
+    // Server APIs use UTC time.
+    const todayDate = getLocalTimeUTC();
     const startDate = todayDate.subtract(30, 'day')
     const startDateStr = startDate.format("YYYY-MM-DD");
     // API is exclusive of end date, so we add one.

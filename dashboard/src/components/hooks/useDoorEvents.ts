@@ -1,9 +1,9 @@
-import useSWR from "swr";
 import {GetDoorEventsResponse} from "@/utils/requests";
 import {fetcher} from "@/utils/fetcher";
-import {useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {DoorEventsResult, DoorEventType, DoorOpenEvent, RawDoorEvent} from "@/utils/models";
-import {useUser} from "@auth0/nextjs-auth0/client";
+
+const DEFAULT_LIMIT = 1000;
 
 /**
  * Build open events from the raw event data to match open/close pairs.
@@ -56,32 +56,64 @@ const buildOpenEvents = (events: RawDoorEvent[]) => {
 }
 
 export const useDoorEvents = (isLoggedIn: boolean, deviceId: string, startDate: string, endDate: string) => {
-    const { data, isLoading } =
-        useSWR<GetDoorEventsResponse>(
-            isLoggedIn ?
-                `/door-events?${new URLSearchParams({
-                    deviceId,
-                    startDate,
-                    endDate,
-                })}` :
-                null,
-            fetcher,
-        );
+    const [doorEvents, setDoorEvents] = useState<RawDoorEvent[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const result = useMemo<DoorEventsResult>(() => {
-        if (!data) {
-            return {
-                rawEvents: [],
-                openEvents: [],
-            };
+    useEffect(() => {
+        let isMounted = true;
+
+        const fetchDoorEvents = async (lastEvaluatedKey : string | null = null) => {
+            setIsLoading(true);
+
+            const params = new URLSearchParams({
+                deviceId,
+                startDate,
+                endDate,
+                limit: DEFAULT_LIMIT.toString(),
+            });
+
+            // Add cursor parameter for pagination.
+            if (lastEvaluatedKey) {
+                params.append('lastEvaluatedKey', lastEvaluatedKey);
+            }
+
+            try {
+                const response = await fetcher(`/door-events?${params.toString()}`) as GetDoorEventsResponse;
+                if (isMounted) {
+                    setDoorEvents(prevEvents => [...prevEvents, ...response.events]);
+
+                    // If there's more data, fetch next page.
+                    if (response.responseMetadata && response.responseMetadata.lastEvaluatedKey) {
+                        const cursor = response.responseMetadata.lastEvaluatedKey;
+                        await fetchDoorEvents(cursor);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching door events:', error);
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        if (isLoggedIn) {
+            fetchDoorEvents()
+                .catch(console.error);
         }
 
+        return () => {
+            isMounted = false;
+        };
+    }, [isLoggedIn, deviceId, startDate, endDate]);
+
+    const result = useMemo<DoorEventsResult>(() => {
         // TODO: we're currently showing timestamps in user local time (server timestamps are UTC).
         // it might be better to show timestamps in local time of the source refrigerator, regardless
         // of the viewing user's local time.
 
         // Sort events by time.
-        const sortedEvents = [...data.events].sort((a, b) => {
+        const sortedEvents = [...doorEvents].sort((a, b) => {
             return a.timestamp.localeCompare(b.timestamp);
         });
 
@@ -89,7 +121,7 @@ export const useDoorEvents = (isLoggedIn: boolean, deviceId: string, startDate: 
             rawEvents: sortedEvents,
             openEvents: buildOpenEvents(sortedEvents),
         }
-    }, [data]);
+    }, [doorEvents]);
 
     return {
         isLoading,
